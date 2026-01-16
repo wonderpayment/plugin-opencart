@@ -1,0 +1,98 @@
+<div class="buttons">
+  <div class="pull-right">
+    {% if method == 'get' %}
+    <a href="{{ action }}" class="btn btn-primary">{{ button_confirm }}</a>
+    {% else %}
+    <input type="button" value="{{ button_confirm }}" id="button-confirm" class="btn btn-primary" data-loading-text="{{ text_loading }}" />
+    <input type="button" value="{{ button_i_have_paid }}" id="button-i-have-paid" class="btn btn-success" style="display:none;" />
+    {% endif %}
+  </div>
+</div>
+
+{% if method == 'post' %}
+<script type="text/javascript"><!--
+// 在页面加载时保存订单ID到localStorage
+var orderId = '{{ order_id }}';
+if (orderId) {
+    localStorage.setItem('wonderpayment_order_id', orderId);
+}
+
+// 确认支付按钮 - 在新标签页打开支付链接，然后显示其他两个按钮
+$('#button-confirm').bind('click', function() {
+    $.ajax({
+        url: '{{ action }}',
+        type: 'post',
+        data: $('#payment-form :input'),
+        dataType: 'json',
+        beforeSend: function() {
+            $('#button-confirm').button('loading');
+        },
+        complete: function() {
+            $('#button-confirm').button('reset');
+        },
+        success: function(json) {
+            if (json['redirect']) {
+                // 在新标签页打开支付链接
+                window.open(json['redirect'], '_blank');
+                // 隐藏确认付款按钮，显示我已支付按钮
+                $('#button-confirm').hide();
+                $('#button-i-have-paid').show();
+            } else if (json['error']) {
+                alert(json['error']);
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+});
+
+// 我已支付按钮 - 查询订单状态（限制三秒只能点击一次）
+var canClickPaid = true;
+$('#button-i-have-paid').bind('click', function() {
+    if (!canClickPaid) {
+        alert('请稍后再试');
+        return;
+    }
+
+    canClickPaid = false;
+    
+    // 尝试从多个来源获取订单ID
+    var orderId = '{{ order_id }}'; // 从模板变量获取
+    if (!orderId) {
+        // 如果模板变量中没有，尝试从本地存储获取
+        orderId = localStorage.getItem('wonderpayment_order_id');
+    }
+
+    $.ajax({
+        url: '{{ check_payment_url }}',
+        type: 'post',  // 改为POST以传递订单ID
+        data: { order_id: orderId },  // 传递订单ID
+        dataType: 'json',
+        success: function(json) {
+            if (json['redirect']) {
+                // 显示提示信息
+                alert('{{ text_unpaid_alert }}');
+                // 在新标签页打开支付链接
+                window.open(json['redirect'], '_blank');
+                // 如果支付完成，跳转到成功页面
+                if (json['redirect'].indexOf('checkout/success') > 0) {
+                    window.location.href = json['redirect'];
+                }
+            } else if (json['error']) {
+                alert(json['error']);
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        },
+        complete: function() {
+            // 三秒后允许再次点击
+            setTimeout(function() {
+                canClickPaid = true;
+            }, 3000);
+        }
+    });
+});
+//--></script>
+{% endif %}

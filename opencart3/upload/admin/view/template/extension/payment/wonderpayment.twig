@@ -1,0 +1,1105 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-payment" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- 二维码配置区域 -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-qrcode"></i> {{ text_qrcode_config }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="form-group">
+          <div class="col-sm-12">
+            <p class="help-block">{{ text_qrcode_help }}</p>
+<div class="alert alert-info" style="margin-bottom: 15px;">
+              <h5 style="margin-top: 0;"><i class="fa fa-info-circle"></i> {{ text_config_process_title }}：</h5>
+              <ol style="margin-bottom: 0; padding-left: 20px;">
+                <li><strong>{{ text_step_scan }}</strong>：{{ text_config_process_step1 }}</li>
+                <li><strong>{{ text_step_select }}</strong>：{{ text_config_process_step2 }}</li>
+                <li><strong>{{ text_step_other_config }}</strong>：{{ text_config_process_step3 }}</li>
+              </ol>
+            </div>
+            <div class="alert alert-warning" style="margin-bottom: 15px;">
+              <h5 style="margin-top: 0;"><i class="fa fa-exclamation-triangle"></i> {{ text_config_notice_title }}：</h5>
+              <ul style="margin-bottom: 0; padding-left: 20px;">
+                <li>{{ text_config_notice_item1 }}</li>
+                <li>{{ text_config_notice_item2 }}</li>
+                <li>{{ text_config_notice_item3 }}</li>
+                <li>{{ text_config_notice_item4 }}</li>
+              </ul>
+            </div>
+            <button type="button" id="btn-open-qrcode-modal" class="btn btn-info btn-lg">
+              <i class="fa fa-qrcode"></i> {{ button_generate_qrcode }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 二维码登录弹窗 -->
+    <div class="modal fade" id="qrcode-modal" tabindex="-1" role="dialog" aria-labelledby="qrcode-modal-label" data-backdrop="static" data-keyboard="false">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
+          <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-top-left-radius: 12px; border-top-right-radius: 12px; padding: 20px;">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; opacity: 0.8;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="qrcode-modal-label" style="font-size: 24px; font-weight: 600; margin: 0;">
+              <i class="fa fa-qrcode"></i> {{ text_qrcode_config }}
+            </h4>
+          </div>
+          
+          <div class="modal-body" style="padding: 30px;">
+            <!-- 步骤指示器 -->
+            <div class="steps-indicator" style="display: flex; justify-content: space-between; margin-bottom: 30px; position: relative;">
+              <div class="step clickable active" data-step="1" style="flex: 1; text-align: center; position: relative; z-index: 1; cursor: pointer;">
+                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: 600;">1</div>
+                <div class="step-label" style="font-size: 14px; color: #666;">{{ text_step_scan }}</div>
+              </div>
+              <div class="step clickable" data-step="2" style="flex: 1; text-align: center; position: relative; z-index: 1; cursor: pointer;">
+                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: #e0e0e0; color: #999; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: 600;">2</div>
+                <div class="step-label" style="font-size: 14px; color: #666;">{{ text_step_select }}</div>
+              </div>
+              <div class="step clickable" data-step="3" style="flex: 1; text-align: center; position: relative; z-index: 1; cursor: pointer;">
+                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: #e0e0e0; color: #999; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: 600;">3</div>
+                <div class="step-label" style="font-size: 14px; color: #666;">{{ text_step_other_config }}</div>
+              </div>
+            </div>
+
+            <!-- 步骤1：二维码扫描 -->
+            <div id="step-1" class="step-content" style="display: block;">
+              <div style="text-align: center; padding: 20px;">
+                <div id="qrcode-loading" style="display: none;">
+                  <i class="fa fa-spinner fa-spin fa-3x" style="color: #667eea;"></i>
+                  <p style="margin-top: 15px; color: #666;">{{ text_loading }}</p>
+                </div>
+                <div id="qrcode-display" style="display: none;">
+                  <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; margin-bottom: 20px;">
+                    <img id="qrcode-image" src="" alt="QR Code" style="width: 200px; height: 200px; display: block;">
+                  </div>
+                  <p class="help-block" style="font-size: 16px; color: #333; margin-bottom: 15px;">{{ text_scan_qrcode }}</p>
+                  <div id="qrcode-status" class="alert alert-info" style="display: inline-block; margin: 0;">
+                    <i class="fa fa-clock-o"></i> {{ text_waiting_scan }}
+                  </div>
+                  <div id="qrcode-actions" style="margin-top: 12px;">
+                    <button type="button" id="btn-refresh-qrcode" class="btn btn-link" style="padding: 0;">
+                      <i class="fa fa-refresh"></i> {{ text_refresh }}
+                    </button>
+                    <div id="qrcode-hint" style="margin-top: 6px; color: #888;"></div>
+                  </div>
+                </div>
+                <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left;">
+                  <h5 style="margin-top: 0; color: #667eea;"><i class="fa fa-info-circle"></i> {{ text_operation_instructions }}：</h5>
+                  <ol style="margin-bottom: 0; padding-left: 20px; color: #555;">
+                    <li>{{ text_operation_step1 }}</li>
+                    <li>{{ text_operation_step2 }}</li>
+                    <li>{{ text_operation_step3 }}</li>
+                    <li>{{ text_operation_step4 }}</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <!-- 步骤2：选择商家 -->
+            <div id="step-2" class="step-content" style="display: none;">
+              <div style="padding: 20px;">
+                <h4 style="margin-bottom: 20px; color: #333; font-size: 18px;">{{ text_select_business }}</h4>
+                <div id="business-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                  <!-- 商家列表将在这里动态生成 -->
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                  <button type="button" id="btn-back-to-step1" class="btn btn-default" style="margin-right: 10px;">
+                    <i class="fa fa-arrow-left"></i> {{ text_back }}
+                  </button>
+                  <button type="button" id="btn-confirm-business" class="btn btn-primary" disabled style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fa fa-check"></i> {{ text_confirm_business }}
+                  </button>
+                </div>
+                <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                  <h5 style="margin-top: 0; color: #667eea;"><i class="fa fa-info-circle"></i> {{ text_operation_instructions }}：</h5>
+                  <ol style="margin-bottom: 0; padding-left: 20px; color: #555;">
+                    <li>{{ text_operation_select_step1 }}</li>
+                    <li>{{ text_operation_select_step2 }}</li>
+                    <li>{{ text_operation_select_step3 }}</li>
+                    <li>{{ text_operation_select_step4 }}</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <!-- 步骤3：其他配置 -->
+            <div id="step-3" class="step-content" style="display: none;">
+              <div style="padding: 20px;">
+                <h4 style="margin-bottom: 20px; color: #333; font-size: 18px;">{{ text_step_other_config }}</h4>
+
+                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_webhook_public_key }}</h5>
+                  <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_webhook_public_key }}</p>
+                  <textarea name="payment_wonderpayment_public_key" rows="5" placeholder="{{ entry_webhook_public_key_placeholder }}" id="result-webhook-public-key" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+                  {% if error_public_key %}
+                  <div class="text-danger" style="margin-top: 5px;">{{ error_public_key }}</div>
+                  {% endif %}
+                </div>
+
+                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_environment }}</h5>
+                  <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_environment }}</p>
+                  <select name="payment_wonderpayment_environment" id="modal-input-environment" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    {% if payment_wonderpayment_environment == 'stg' %}
+                    <option value="stg" selected="selected">{{ text_sandbox }}</option>
+                    {% else %}
+                    <option value="stg">{{ text_sandbox }}</option>
+                    {% endif %}
+                    {% if payment_wonderpayment_environment == 'prod' %}
+                    <option value="prod" selected="selected">{{ text_live }}</option>
+                    {% else %}
+                    <option value="prod">{{ text_live }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+
+                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_language }}</h5>
+                  <select name="payment_wonderpayment_language" id="modal-input-language" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    {% if payment_wonderpayment_language == 'zh-cn' %}
+                    <option value="zh-cn" selected="selected">{{ text_zh_cn }}</option>
+                    {% else %}
+                    <option value="zh-cn">{{ text_zh_cn }}</option>
+                    {% endif %}
+                    {% if payment_wonderpayment_language == 'zh-hk' %}
+                                    <option value="zh-hk" selected="selected">{{ text_zh_hk }}</option>
+                                    {% else %}
+                                    <option value="zh-hk">{{ text_zh_hk }}</option>
+                                    {% endif %}                    {% if payment_wonderpayment_language == 'en-gb' %}
+                    <option value="en-gb" selected="selected">{{ text_en_gb }}</option>
+                    {% else %}
+                    <option value="en-gb">{{ text_en_gb }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+
+                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_order_status }}</h5>
+                  <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_order_status }}</p>
+                  <select name="payment_wonderpayment_order_status_id" id="modal-input-order-status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    {% for order_status in order_statuses %}
+                      {% if order_status.order_status_id == payment_wonderpayment_order_status_id %}
+                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                      {% else %}
+                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_refund_order_status }}</h5>
+                  <select name="payment_wonderpayment_refund_order_status_id" id="modal-input-refund-order-status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    {% for order_status in order_statuses %}
+                      {% if order_status.order_status_id == payment_wonderpayment_refund_order_status_id %}
+                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                      {% else %}
+                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_geo_zone }}</h5>
+                  <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_geo_zone }}</p>
+                  <select name="payment_wonderpayment_geo_zone_id" id="modal-input-geo-zone" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="0">{{ text_all_zones }}</option>
+                    {% for geo_zone in geo_zones %}
+                    {% if geo_zone.geo_zone_id == payment_wonderpayment_geo_zone_id %}
+                    <option value="{{ geo_zone.geo_zone_id }}" selected="selected">{{ geo_zone.name }}</option>
+                    {% else %}
+                    <option value="{{ geo_zone.geo_zone_id }}">{{ geo_zone.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_status }}</h5>
+                  <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_status }}</p>
+                  <select name="payment_wonderpayment_status" id="modal-input-status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    {% if payment_wonderpayment_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+
+                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_sort_order }}</h5>
+                  <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_sort_order }}</p>
+                  <input type="text" name="payment_wonderpayment_sort_order" value="{{ payment_wonderpayment_sort_order }}" placeholder="{{ entry_sort_order }}" id="modal-input-sort-order" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"/>
+                </div>
+
+                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_debug }}</h5>
+                  <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_debug }}</p>
+                  <select name="payment_wonderpayment_debug" id="modal-input-debug" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    {% if payment_wonderpayment_debug %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                  <button type="button" id="btn-back-to-step2" class="btn btn-default" style="margin-right: 10px;">
+                    <i class="fa fa-arrow-left"></i> {{ text_back }}
+                  </button>
+                  <button type="button" id="btn-save-config" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fa fa-save"></i> {{ button_save }}
+                  </button>
+                </div>
+
+                <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                  <h5 style="margin-top: 0; color: #667eea;"><i class="fa fa-info-circle"></i> {{ text_operation_instructions }}：</h5>
+                  <ol style="margin-bottom: 0; padding-left: 20px; color: #555;">
+                    <li>{{ text_operation_config_step1 }}</li>
+                    <li>{{ text_operation_config_step2 }}</li>
+                    <li>{{ text_operation_config_step3 }}</li>
+                    <li>{{ text_operation_config_step4 }}</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="border-top: none; padding: 20px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-payment" class="form-horizontal">
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="entry-appid">{{ entry_appid }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_wonderpayment_appid" value="{{ payment_wonderpayment_appid }}" placeholder="{{ entry_appid }}" id="entry-appid" class="form-control"/>
+              {% if error_appid %}
+              <div class="text-danger">{{ error_appid }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="entry-private-key">{{ entry_private_key }}</label>
+            <div class="col-sm-10">
+              <textarea name="payment_wonderpayment_private_key" rows="10" placeholder="{{ entry_private_key }}" id="entry-private-key" class="form-control">{{ payment_wonderpayment_private_key }}</textarea>
+              {% if error_private_key %}
+              <div class="text-danger">{{ error_private_key }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="entry-public-key">{{ entry_public_key }}</label>
+            <div class="col-sm-10">
+              <textarea name="payment_wonderpayment_public_key" rows="5" placeholder="{{ entry_public_key }}" id="entry-public-key" class="form-control">{{ payment_wonderpayment_public_key }}</textarea>
+              {% if error_public_key %}
+              <div class="text-danger">{{ error_public_key }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-environment"><span data-toggle="tooltip" title="{{ help_environment }}">{{ entry_environment }}</span></label>
+            <div class="col-sm-10">
+              <select name="payment_wonderpayment_environment" id="input-environment" class="form-control">
+                {% if payment_wonderpayment_environment == 'stg' %}
+                <option value="stg" selected="selected">{{ text_sandbox }}</option>
+                {% else %}
+                <option value="stg">{{ text_sandbox }}</option>
+                {% endif %}
+                {% if payment_wonderpayment_environment == 'prod' %}
+                <option value="prod" selected="selected">{{ text_live }}</option>
+                {% else %}
+                <option value="prod">{{ text_live }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-admin-language"><span data-toggle="tooltip" title="{{ help_admin_language }}">{{ entry_admin_language }}</span></label>
+            <div class="col-sm-10">
+              <select name="payment_wonderpayment_admin_language" id="input-admin-language" class="form-control">
+                {% for language in languages %}
+                  {% if language.code == payment_wonderpayment_admin_language %}
+                    <option value="{{ language.code }}" selected="selected">{{ language.name }}</option>
+                  {% else %}
+                    <option value="{{ language.code }}">{{ language.name }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-language">{{ entry_language }}</label>
+            <div class="col-sm-10">
+              <select name="payment_wonderpayment_language" id="input-language" class="form-control">
+                {% if payment_wonderpayment_language == 'zh-cn' %}
+                <option value="zh-cn" selected="selected">{{ text_zh_cn }}</option>
+                {% else %}
+                <option value="zh-cn">{{ text_zh_cn }}</option>
+                {% endif %}
+                {% if payment_wonderpayment_language == 'zh-hk' %}
+                <option value="zh-hk" selected="selected">{{ text_zh_hk }}</option>
+                {% else %}
+                <option value="zh-hk">{{ text_zh_hk }}</option>
+                {% endif %}
+                {% if payment_wonderpayment_language == 'en-gb' %}
+                <option value="en-gb" selected="selected">{{ text_en_gb }}</option>
+                {% else %}
+                <option value="en-gb">{{ text_en_gb }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-total"><span data-toggle="tooltip" title="{{ help_total }}">{{ entry_total }}</span></label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_wonderpayment_total" value="{{ payment_wonderpayment_total }}" placeholder="{{ entry_total }}" id="input-total" class="form-control"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-order-status">{{ entry_order_status }}</label>
+            <div class="col-sm-10">
+              <select name="payment_wonderpayment_order_status_id" id="input-order-status" class="form-control">
+                {% for order_status in order_statuses %}
+                  {% if order_status.order_status_id == payment_wonderpayment_order_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                  {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-refund-order-status">{{ entry_refund_order_status }}</label>
+            <div class="col-sm-10">
+              <select name="payment_wonderpayment_refund_order_status_id" id="input-refund-order-status" class="form-control">
+                {% for order_status in order_statuses %}
+                  {% if order_status.order_status_id == payment_wonderpayment_refund_order_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                  {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-geo-zone">{{ entry_geo_zone }}</label>
+            <div class="col-sm-10">
+              <select name="payment_wonderpayment_geo_zone_id" id="input-geo-zone" class="form-control">
+                <option value="0">{{ text_all_zones }}</option>
+                {% for geo_zone in geo_zones %}
+                {% if geo_zone.geo_zone_id == payment_wonderpayment_geo_zone_id %}
+                <option value="{{ geo_zone.geo_zone_id }}" selected="selected">{{ geo_zone.name }}</option>
+                {% else %}
+                <option value="{{ geo_zone.geo_zone_id }}">{{ geo_zone.name }}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <select name="payment_wonderpayment_status" id="input-status" class="form-control">
+                {% if payment_wonderpayment_status %}
+                <option value="1" selected="selected">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+                {% else %}
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0" selected="selected">{{ text_disabled }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-sort-order">{{ entry_sort_order }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_wonderpayment_sort_order" value="{{ payment_wonderpayment_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
+            <div class="col-sm-10">
+              <select name="payment_wonderpayment_debug" id="input-debug" class="form-control">
+                {% if payment_wonderpayment_debug %}
+                <option value="1" selected="selected">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+                {% else %}
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0" selected="selected">{{ text_disabled }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+        </form>
+        <div class="alert alert-info">{{ help_setup }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // 全局变量
+    var qrCodeUuid = null;
+    var qrCodeAccessToken = null;
+    var pollInterval = null;
+    var currentEnvironment = 'stg';
+    var selectedBusinessId = null;
+    var currentStep = 1;
+    var generatedAppId = '';
+    var generatedPrivateKey = '';
+
+    // 监听环境选择变化
+    $('#input-environment').on('change', function() {
+        currentEnvironment = $(this).val();
+    });
+
+    // 监听后台语言选择变化
+    $('#input-admin-language').on('change', function() {
+        var selectedLanguage = $(this).val();
+
+        // 通过AJAX更新OpenCart的语言设置
+        $.ajax({
+            url: 'index.php?route=extension/payment/wonderpayment/updateAdminLanguage&user_token={{ user_token }}',
+            type: 'post',
+            data: {
+                language: selectedLanguage
+            },
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    // 刷新页面以应用新语言
+                    location.reload();
+                } else {
+                    alert(json.error || 'Failed to update language setting');
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert('Error: ' + thrownError);
+            }
+        });
+    });
+
+    // 打开二维码登录弹窗
+    $('#btn-open-qrcode-modal').on('click', function() {
+        resetModal();
+        $('#qrcode-modal').modal('show');
+        startQRCodeProcess();
+    });
+
+    // 刷新二维码
+    $('#btn-refresh-qrcode').on('click', function() {
+        if ($(this).prop('disabled')) {
+            return;
+        }
+        startQRCodeProcess();
+    });
+
+    // 重置弹窗状态
+    function resetModal() {
+        qrCodeUuid = null;
+        qrCodeAccessToken = null;
+        selectedBusinessId = null;
+        currentStep = 1;
+        generatedAppId = '';
+        generatedPrivateKey = '';
+        
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+
+        // 重置步骤显示
+        $('.step').removeClass('active');
+        $('.step').find('.step-circle').css('background', '#e0e0e0').css('color', '#999');
+        $('.step-content').hide();
+        $('#step-1').show();
+        $('.step[data-step="1"]').addClass('active');
+        $('.step[data-step="1"]').find('.step-circle').css('background', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)').css('color', 'white');
+
+        // 重置二维码显示
+        $('#qrcode-loading').show();
+        $('#qrcode-display').hide();
+        $('#qrcode-image').attr('src', '');
+        $('#qrcode-hint').text('');
+        $('#qrcode-status')
+            .removeClass('alert-success alert-danger alert-warning')
+            .addClass('alert-info')
+            .html('<i class="fa fa-clock-o"></i> {{ text_waiting_scan }}');
+        $('#btn-refresh-qrcode').prop('disabled', true);
+
+        // 重置商家选择
+        selectedBusinessId = null;
+        $('#btn-confirm-business').prop('disabled', true);
+
+        // 更新步骤可点击状态
+        updateStepClickability();
+    }
+
+    // 开始二维码登录流程
+    function startQRCodeProcess() {
+        $('#btn-refresh-qrcode').prop('disabled', true);
+        $('#qrcode-hint').text('');
+        $('#qrcode-status')
+            .removeClass('alert-success alert-danger alert-warning')
+            .addClass('alert-info')
+            .html('<i class="fa fa-clock-o"></i> {{ text_waiting_scan }}');
+        $('#qrcode-loading').show();
+        $('#qrcode-display').hide();
+
+        $.ajax({
+            url: 'index.php?route=extension/payment/wonderpayment/qrcode&user_token={{ user_token }}',
+            type: 'post',
+            data: { environment: currentEnvironment },
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    qrCodeUuid = json.uuid;
+
+                    // 生成二维码图片
+                    var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(json.sUrl);
+                    $('#qrcode-image').attr('src', qrUrl);
+
+                    $('#qrcode-loading').hide();
+                    $('#qrcode-display').show();
+                    $('#btn-refresh-qrcode').prop('disabled', false);
+
+                    // 开始轮询登录状态
+                    startPollingQRCodeStatus();
+                } else {
+                    $('#btn-refresh-qrcode').prop('disabled', false);
+                    $('#qrcode-hint').text(json.error || '');
+                    $('#qrcode-status')
+                        .removeClass('alert-info')
+                        .addClass('alert-danger')
+                        .html('<i class="fa fa-times"></i> ' + (json.error || 'Error'));
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                $('#btn-refresh-qrcode').prop('disabled', false);
+                $('#qrcode-hint').text(thrownError || '');
+                $('#qrcode-status')
+                    .removeClass('alert-info')
+                    .addClass('alert-danger')
+                    .html('<i class="fa fa-times"></i> ' + thrownError);
+            }
+        });
+    }
+
+    // 轮询二维码状态
+    function startPollingQRCodeStatus() {
+        pollInterval = setInterval(function() {
+            $.ajax({
+                url: 'index.php?route=extension/payment/wonderpayment/pollQRCodeStatus&user_token={{ user_token }}',
+                type: 'post',
+                data: {
+                    uuid: qrCodeUuid,
+                    environment: currentEnvironment
+                },
+                dataType: 'json',
+                success: function(json) {
+                    if (json.success) {
+                                        if (json.status === 'SCANNED') {
+                                            clearInterval(pollInterval);
+
+                                            // 保存访问令牌（只保存非空字符串）
+                                            if (json.accessToken && json.accessToken.trim() !== '') {
+                                                qrCodeAccessToken = json.accessToken;
+                                                console.log('Access Token saved:', qrCodeAccessToken);
+                                            } else {
+                                                console.error('Access Token is empty or not provided');
+                                                qrCodeAccessToken = null;
+                                            }
+
+                                            $('#qrcode-status')
+                                                .removeClass('alert-info')
+                                                .addClass('alert-success')
+                                                .html('<i class="fa fa-check"></i> {{ text_login_success }}');
+
+                            // 更新步骤指示器
+                            updateStepIndicator(2);
+
+                            // 延迟后显示商家列表
+                            setTimeout(function() {
+                                showBusinessList();
+                            }, 1000);
+                        } else if (json.status === 'EXPIRED') {
+                            clearInterval(pollInterval);
+                            $('#qrcode-status')
+                                .removeClass('alert-info')
+                                .addClass('alert-danger')
+                                .html('<i class="fa fa-times"></i> {{ text_qrcode_expired }}');
+                            $('#qrcode-hint').text('{{ text_qrcode_expired_hint }}');
+                            $('#btn-refresh-qrcode').prop('disabled', false);
+                        } else if (json.status === 'CANCELLED') {
+                            clearInterval(pollInterval);
+                            $('#qrcode-status')
+                                .removeClass('alert-info')
+                                .addClass('alert-warning')
+                                .html('<i class="fa fa-ban"></i> {{ text_qrcode_cancelled }}');
+                            $('#qrcode-hint').text('{{ text_qrcode_expired_hint }}');
+                            $('#btn-refresh-qrcode').prop('disabled', false);
+                        }
+                    } else {
+                        clearInterval(pollInterval);
+                        $('#qrcode-status')
+                            .removeClass('alert-info')
+                            .addClass('alert-danger')
+                            .html('<i class="fa fa-times"></i> ' + json.error);
+                        $('#qrcode-hint').text(json.error || '');
+                        $('#btn-refresh-qrcode').prop('disabled', false);
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    clearInterval(pollInterval);
+                    $('#qrcode-status')
+                        .removeClass('alert-info')
+                        .addClass('alert-danger')
+                        .html('<i class="fa fa-times"></i> Error: ' + thrownError);
+                    $('#qrcode-hint').text(thrownError || '');
+                    $('#btn-refresh-qrcode').prop('disabled', false);
+                }
+            });
+        }, 2000);
+    }
+
+    // 更新步骤指示器
+    function updateStepIndicator(stepNumber) {
+        currentStep = stepNumber;
+        $('.step').each(function() {
+            var step = $(this);
+            var stepNum = step.data('step');
+            var circle = step.find('.step-circle');
+
+            if (stepNum < stepNumber) {
+                // 已完成的步骤
+                circle.css('background', '#4CAF50').css('color', 'white');
+            } else if (stepNum === stepNumber) {
+                // 当前步骤
+                circle.css('background', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)').css('color', 'white');
+            } else {
+                // 未完成的步骤
+                circle.css('background', '#e0e0e0').css('color', '#999');
+            }
+        });
+
+        // 更新步骤的可点击状态
+        updateStepClickability();
+    }
+
+    // 更新步骤的可点击状态
+    function updateStepClickability() {
+        $('.step').each(function() {
+            var step = $(this);
+            var stepNum = step.data('step');
+
+            if (currentStep === 1) {
+                // 第一步时,不能点击第二步和第三步
+                if (stepNum > 1) {
+                    step.removeClass('clickable').css('cursor', 'not-allowed');
+                } else {
+                    step.addClass('clickable').css('cursor', 'pointer');
+                }
+            } else {
+                // 第二步或第三步时,所有步骤都可点击
+                step.addClass('clickable').css('cursor', 'pointer');
+            }
+        });
+    }
+
+    // 显示商家列表
+    function showBusinessList() {
+        $('#step-1').hide();
+        $('#step-2').show();
+
+        console.log('showBusinessList called, qrCodeAccessToken:', qrCodeAccessToken);
+
+        // 更新步骤可点击状态
+        updateStepClickability();
+
+        $.ajax({
+            url: 'index.php?route=extension/payment/wonderpayment/getBusinesses&user_token={{ user_token }}',
+            type: 'post',
+            data: {
+                access_token: qrCodeAccessToken,
+                environment: currentEnvironment
+            },
+            dataType: 'json',
+            success: function(json) {
+                if (json.success && json.businesses && json.businesses.length > 0) {
+                    var businessList = $('#business-list');
+                    businessList.empty();
+
+                    json.businesses.forEach(function(business) {
+                        var businessCard = $('<div>', {
+                            class: 'business-card',
+                            'data-business-id': business.id,
+                            css: {
+                                background: 'white',
+                                border: '2px solid #e0e0e0',
+                                borderRadius: '8px',
+                                padding: '15px',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s'
+                            }
+                        });
+
+                        // 状态颜色
+                        var statusColor = business.status === 'Active' ? '#4CAF50' : '#999';
+                        var statusText = business.status === 'Active' ? '{{ text_business_status_active }}' : '{{ text_business_status_inactive }}';
+
+                        businessCard.html(
+                            '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">' +
+                            '<div style="font-size: 16px; font-weight: 600; color: #333; flex: 1;">' +
+                            '<i class="fa fa-store"></i> ' + (business.business_name || 'N/A') +
+                            '</div>' +
+                            '<span style="background: ' + statusColor + '; color: white; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-left: 10px;">' + statusText + '</span>' +
+                            '</div>' +
+                            '<div style="font-size: 12px; color: #999; margin-bottom: 5px;">' +
+                            '<i class="fa fa-tag"></i> {{ text_business_type }}: ' + (business.business_type || 'N/A') +
+                            '</div>' +
+                            '<div style="font-size: 12px; color: #999; margin-bottom: 5px;">' +
+                            '<i class="fa fa-globe"></i> {{ text_business_country }}: ' + (business.country_name || 'N/A') +
+                            '</div>' +
+                            '<div style="font-size: 12px; color: #999; margin-bottom: 5px;">' +
+                            '<i class="fa fa-money"></i> {{ text_business_currency }}: ' + (business.currency_symbol || '') + ' ' + (business.currency_code || 'N/A') +
+                            '</div>' +
+                            '<div style="font-size: 12px; color: #999;">' +
+                            '<i class="fa fa-user"></i> {{ text_business_role }}: ' + (business.role_name || 'N/A') +
+                            '</div>'
+                        );
+
+                        businessCard.on('click', function() {
+                            selectBusiness(business);
+                        });
+
+                        businessCard.on('mouseenter', function() {
+                            $(this).css('border-color', '#667eea').css('box-shadow', '0 2px 8px rgba(102, 126, 234, 0.2)');
+                        });
+
+                        businessCard.on('mouseleave', function() {
+                            $(this).css('border-color', '#e0e0e0').css('box-shadow', 'none');
+                        });
+
+                        businessList.append(businessCard);
+                    });
+                } else {
+                    alert('Error: 无法获取商家列表');
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert('Error: ' + thrownError);
+            }
+        });
+    }
+
+    // 选择商家
+    function selectBusiness(business) {
+        selectedBusinessId = business.id;
+
+        // 高亮选中的商家卡片
+        $('.business-card').each(function() {
+            $(this).css('border-color', '#e0e0e0').css('background', 'white');
+        });
+
+        // 找到对应的卡片并高亮（使用 data 属性）
+        $('.business-card').each(function() {
+            if ($(this).data('business-id') === business.id) {
+                $(this).css('border-color', '#667eea').css('background', '#f0f4ff');
+            }
+        });
+
+        // 启用确认按钮
+        $('#btn-confirm-business').prop('disabled', false);
+    }
+
+    // 生成密钥对和 App ID
+    function generateKeyPairAndAppId() {
+        // 显示加载状态
+        $('#step-2').hide();
+        $('#step-3').show();
+
+        // 调用后端接口生成 App ID（后端会生成密钥对）
+        $.ajax({
+            url: 'index.php?route=extension/payment/wonderpayment/generateAppId&user_token={{ user_token }}',
+            type: 'post',
+            data: {
+                business_id: selectedBusinessId,
+                access_token: qrCodeAccessToken,
+                environment: currentEnvironment
+            },
+            dataType: 'json',
+            success: function(json) {
+                if (json.success && json.config) {
+                    // 更新步骤指示器
+                    updateStepIndicator(3);
+
+                    // 保存appid和私钥到全局变量,不显示给用户
+                    generatedAppId = json.config.appid || '';
+                    generatedPrivateKey = json.config.private_key || '';
+
+                    // 更新步骤可点击状态
+                    updateStepClickability();
+                } else {
+                    alert('Error: ' + json.error);
+                    // 返回步骤2
+                    goToStep(2);
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert('Error: ' + thrownError);
+                // 返回步骤2
+                goToStep(2);
+            }
+        });
+    }
+
+    // 复制私钥
+    $('#btn-copy-key').on('click', function() {
+        var copyText = document.getElementById("result-private-key");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+
+        var btn = $(this);
+        var originalText = btn.html();
+        btn.html('<i class="fa fa-check"></i> {{ text_copied }}');
+        setTimeout(function() {
+            btn.html(originalText);
+        }, 2000);
+    });
+
+    // 保存配置
+    $('#btn-save-config').on('click', function() {
+        // 确认是否使用此配置
+        if (!confirm('{{ text_confirm_use_config }}')) {
+            return;
+        }
+
+        // 自动填充生成的appid和私钥到表单
+        $('input[name="payment_wonderpayment_appid"]').val(generatedAppId);
+        $('textarea[name="payment_wonderpayment_private_key"]').val(generatedPrivateKey);
+
+        // 获取webhook公钥的值
+        var webhookPublicKey = $('#result-webhook-public-key').val();
+        if (webhookPublicKey) {
+            $('textarea[name="payment_wonderpayment_public_key"]').val(webhookPublicKey);
+        }
+
+        // 获取环境
+        var environment = $('#modal-input-environment').val();
+        if (environment) {
+            $('select[name="payment_wonderpayment_environment"]').val(environment);
+        }
+
+        // 获取语言
+        var language = $('#modal-input-language').val();
+        if (language) {
+            $('select[name="payment_wonderpayment_language"]').val(language);
+        }
+
+        // 获取订单状态
+        var orderStatus = $('#modal-input-order-status').val();
+        if (orderStatus) {
+            $('select[name="payment_wonderpayment_order_status_id"]').val(orderStatus);
+        }
+
+        // 获取退款订单状态
+        var refundOrderStatus = $('#modal-input-refund-order-status').val();
+        if (refundOrderStatus) {
+            $('select[name="payment_wonderpayment_refund_order_status_id"]').val(refundOrderStatus);
+        }
+
+        // 获取地理区域
+        var geoZone = $('#modal-input-geo-zone').val();
+        if (geoZone) {
+            $('select[name="payment_wonderpayment_geo_zone_id"]').val(geoZone);
+        }
+
+        // 获取状态
+        var status = $('#modal-input-status').val();
+        if (status) {
+            $('select[name="payment_wonderpayment_status"]').val(status);
+        }
+
+        // 获取排序
+        var sortOrder = $('#modal-input-sort-order').val();
+        if (sortOrder) {
+            $('input[name="payment_wonderpayment_sort_order"]').val(sortOrder);
+        }
+
+        // 获取调试模式
+        var debug = $('#modal-input-debug').val();
+        if (debug) {
+            $('select[name="payment_wonderpayment_debug"]').val(debug);
+        }
+
+        // 关闭弹窗
+        $('#qrcode-modal').modal('hide');
+
+        // 显示成功消息
+        alert('{{ text_config_saved }}');
+    });
+
+    // 生成 RSA 密钥对（使用 forge 库）
+    // 跳转到指定步骤
+    function goToStep(stepNumber) {
+        // 检查步骤切换限制
+        if (currentStep === 1 && stepNumber > 1) {
+            // 第一步时不能直接跳转到第二步和第三步
+            return;
+        }
+
+        // 如果从第二步或第三步跳转到第一步,弹出确认提示
+        if (stepNumber === 1 && (currentStep === 2 || currentStep === 3)) {
+            if (!confirm('{{ text_confirm_switch_account }}')) {
+                return;
+            }
+            // 确认后重置并返回第一步
+            resetModal();
+            $('#step-1').show();
+            startQRCodeProcess();
+            return;
+        }
+
+        // 检查是否可以跳转到该步骤
+        if (stepNumber > 1 && (!qrCodeAccessToken || qrCodeAccessToken === '')) {
+            alert('{{ text_no_login }}');
+            return;
+        }
+
+        if (stepNumber > 2 && !selectedBusinessId) {
+            alert('{{ text_no_business_selected }}');
+            return;
+        }
+
+        // 停止轮询
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+
+        // 隐藏所有步骤内容
+        $('.step-content').hide();
+
+        // 根据步骤执行相应逻辑
+        switch(stepNumber) {
+            case 1:
+                // 重置二维码，重新开始登录流程
+                if (qrCodeAccessToken) {
+                    // 如果已经登录,跳转到步骤2
+                    alert('{{ text_already_logged_in }}');
+                    goToStep(2);
+                    return;
+                }
+                resetModal();
+                $('#step-1').show();
+                startQRCodeProcess();
+                break;
+            case 2:
+                // 显示商家列表
+                $('#step-2').show();
+                showBusinessList();
+                break;
+            case 3:
+                // 显示其他配置界面
+                $('#step-3').show();
+                break;
+        }
+
+        // 更新步骤指示器
+        updateStepIndicator(stepNumber);
+    }
+
+    // 点击步骤指示器
+    $('.step').on('click', function() {
+        var step = $(this);
+        if (!step.hasClass('clickable')) {
+            return;
+        }
+        var stepNumber = $(this).data('step');
+        goToStep(stepNumber);
+    });
+
+    // 返回到步骤1
+    $('#btn-back-to-step1').on('click', function() {
+        goToStep(1);
+    });
+
+    // 返回到步骤2
+    $('#btn-back-to-step2').on('click', function() {
+        goToStep(2);
+    });
+
+    // 确认商家并生成 App ID
+
+        $('#btn-confirm-business').on('click', function() {
+
+            if (!selectedBusinessId) {
+
+                alert('{{ text_no_business_selected }}');
+
+                return;
+
+            }
+
+    
+
+            // 更新步骤指示器
+
+            updateStepIndicator(3);
+
+    
+
+            // 延迟后生成密钥对
+
+            setTimeout(function() {
+
+                generateKeyPairAndAppId();
+
+            }, 500);
+
+        });
+});
+</script>
+
+{{ footer }}

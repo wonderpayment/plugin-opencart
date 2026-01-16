@@ -1,0 +1,62 @@
+{{ header }}
+<div class="container">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="row">{{ column_left }}
+    {% if column_left and column_right %}
+    {% set class = 'col-sm-6' %}
+    {% elseif column_left or column_right %}
+    {% set class = 'col-sm-9' %}
+    {% else %}
+    {% set class = 'col-sm-12' %}
+    {% endif %}
+    <div id="content" class="{{ class }}">{{ content_top }}
+      <h1>{{ heading_title }}</h1>
+      <div class="alert alert-warning">
+        <i class="fa fa-exclamation-circle"></i> {{ text_unpaid_order }}
+      </div>
+      <div class="well">
+        <p><strong>{{ text_order_id }}</strong> {{ order_id }}</p>
+        <p><strong>{{ text_order_total }}</strong> {{ total }}</p>
+      </div>
+      <div class="buttons">
+        <div class="pull-left">
+          <a href="{{ cancel_url }}" class="btn btn-default">{{ button_cancel }}</a>
+        </div>
+        <div class="pull-right">
+          <a href="javascript:void(0);" id="button-i-have-paid" class="btn btn-success">{{ button_i_have_paid }}</a>
+        </div>
+      </div>
+      {{ content_bottom }}</div>
+    {{ column_right }}</div>
+</div>
+{{ footer }}
+
+{% if payment_link %}
+<script type="text/javascript"><!--
+// 自动在新标签页打开支付页面
+window.open('{{ payment_link }}', '_blank');
+//--></script>
+{% endif %}
+
+<script type="text/javascript"><!--
+// 我已支付按钮 - 查询订单状态（限制三秒只能点击一次）
+var canClickPaid = true;
+$('#button-i-have-paid').bind('click', function() {
+    if (!canClickPaid) {
+        alert('请稍后再试');
+        return;
+    }
+    
+    canClickPaid = false;
+    window.location.href = '{{ check_payment_url }}';
+    
+    // 三秒后允许再次点击
+    setTimeout(function() {
+        canClickPaid = true;
+    }, 3000);
+});
+//--></script>

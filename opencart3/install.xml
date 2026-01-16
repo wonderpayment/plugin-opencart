@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="payment" version="3.0.0" author="WonderPayment">
+  <name>WonderPayment</name>
+  <code>wonderpayment</code>
+  <version>1.0.0</version>
+  <description>WonderPayment payment extension for OpenCart 3.</description>
+</extension>
