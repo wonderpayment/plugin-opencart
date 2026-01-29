@@ -24,10 +24,6 @@ jobs:
           php-version: "8.0"
           tools: composer:v2
 
-      - name: Install SDK (composer)
-        working-directory: opencart3/upload
-        run: composer install --no-dev --prefer-dist --no-interaction --no-progress
-
       - name: Prepare dist
         run: |
           rm -rf dist
