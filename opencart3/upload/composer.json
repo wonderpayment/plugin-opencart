@@ -1,0 +1,21 @@
+{
+  "name": "wonderpayment/opencart3",
+  "type": "project",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/wonderpayment/payment-sdk-php.git",
+      "no-api": true
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "wonderpayment/sdk": "dev-main"
+  },
+  "config": {
+    "vendor-dir": "vendor",
+    "optimize-autoloader": true,
+    "preferred-install": "dist"
+  }
+}

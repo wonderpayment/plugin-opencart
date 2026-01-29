@@ -71,13 +71,13 @@ $('#button-i-have-paid').bind('click', function() {
         dataType: 'json',
         success: function(json) {
             if (json['redirect']) {
-                // 显示提示信息
-                alert('{{ text_unpaid_alert }}');
-                // 在新标签页打开支付链接
-                window.open(json['redirect'], '_blank');
-                // 如果支付完成，跳转到成功页面
                 if (json['redirect'].indexOf('checkout/success') > 0) {
                     window.location.href = json['redirect'];
+                } else {
+                    // 显示提示信息
+                    alert('{{ text_unpaid_alert }}');
+                    // 在新标签页打开支付链接
+                    window.open(json['redirect'], '_blank');
                 }
             } else if (json['error']) {
                 alert(json['error']);

@@ -5,10 +5,17 @@
  */
 
 // 防止重复加载
+
 if (!defined('WONDERPAYMENT_SDK_LOADED')) {
+    // 优先尝试加载 Composer autoload（若存在）
+    $autoloadPath = DIR_SYSTEM . '../vendor/autoload.php';
+    if (file_exists($autoloadPath)) {
+        require_once $autoloadPath;
+    }
+
     // 如果 Composer 已经加载了 PaymentSDK 类，则不需要再次加载
     // 如果没有加载，则尝试直接加载 PaymentSDK.php 文件
-    if (!class_exists('PaymentSDK')) {
+    if (!class_exists('PaymentSDK') && !class_exists('WonderPayment\\PaymentSDK')) {
         // 尝试多个可能的路径
         $possiblePaths = [
             DIR_SYSTEM . 'storage/vendor/wonderpayment/src/PaymentSDK.php',
@@ -23,6 +30,11 @@ if (!defined('WONDERPAYMENT_SDK_LOADED')) {
         }
     }
 
+    // 如果 SDK 是命名空间版本，提供别名以兼容旧调用
+    if (!class_exists('PaymentSDK') && class_exists('WonderPayment\\PaymentSDK')) {
+        class_alias('WonderPayment\\PaymentSDK', 'PaymentSDK');
+    }
+
     define('WONDERPAYMENT_SDK_LOADED', true);
 }
 
@@ -30,20 +42,22 @@ if (!defined('WONDERPAYMENT_SDK_LOADED')) {
  * WonderPayment 适配器类
  * 封装 SDK 并提供 OpenCart 友好的接口
  */
-class WonderPayment {
+class WonderPayment
+{
     private $sdk;
     private $config;
     private $log;
 
-    public function __construct($config, $log = null) {
+    public function __construct($config, $log = null)
+    {
         $this->config = $config;
         $this->log = $log;
 
         // 调试日志 - 记录传入的配置
         $this->logInfo('WonderPayment Constructor called with config keys: ' . json_encode(array_keys($config)));
         $this->logInfo('Config values: appid=' . (isset($config['appid']) ? 'SET' : 'NOT SET') .
-                        ', jwtToken=' . (isset($config['jwtToken']) ? 'SET' : 'NOT SET') .
-                        ', userAccessToken=' . (isset($config['userAccessToken']) ? 'SET' : 'NOT SET'));
+            ', jwtToken=' . (isset($config['jwtToken']) ? 'SET' : 'NOT SET') .
+            ', userAccessToken=' . (isset($config['userAccessToken']) ? 'SET' : 'NOT SET'));
 
         // 初始化 SDK
         $sdkConfig = array(
@@ -101,7 +115,8 @@ class WonderPayment {
      * @param array $orderData 订单数据
      * @return array 支付链接和订单信息
      */
-    public function createPayment($orderData) {
+    public function createPayment($orderData)
+    {
         try {
             $this->logInfo('Creating payment: ' . json_encode($orderData));
 
@@ -128,11 +143,12 @@ class WonderPayment {
      * @param string $transactionUuid 交易UUID (可选，来自创建支付响应的 data.order.transaction.uuid)
      * @return array 订单信息
      */
-    public function queryOrder($referenceNumber, $orderNumber = null, $transactionUuid = null) {
+    public function queryOrder($referenceNumber, $orderNumber = null, $transactionUuid = null)
+    {
         try {
-            $this->logInfo('Querying order: reference_number=' . $referenceNumber . 
-            ', order_number=' . (is_array($orderNumber) ? json_encode($orderNumber) : $orderNumber) . 
-            ', transaction_uuid=' . (is_array($transactionUuid) ? json_encode($transactionUuid) : $transactionUuid));
+            $this->logInfo('Querying order: reference_number=' . $referenceNumber .
+                ', order_number=' . (is_array($orderNumber) ? json_encode($orderNumber) : $orderNumber) .
+                ', transaction_uuid=' . (is_array($transactionUuid) ? json_encode($transactionUuid) : $transactionUuid));
 
             $params = array(
                 'order' => array()
@@ -176,7 +192,8 @@ class WonderPayment {
      * @param array $postData POST 数据
      * @return bool 验证结果
      */
-    public function verifyWebhook($postData) {
+    public function verifyWebhook($postData)
+    {
         try {
             $this->logInfo('Verifying Webhook: ' . json_encode($postData));
 
@@ -198,7 +215,8 @@ class WonderPayment {
      * @param string $transactionUuid 交易 UUID
      * @return array 作废结果
      */
-    public function voidTransaction($referenceNumber, $transactionUuid) {
+    public function voidTransaction($referenceNumber, $transactionUuid)
+    {
         try {
             $this->logInfo('Voiding transaction: ' . $referenceNumber . ' - ' . (is_array($transactionUuid) ? json_encode($transactionUuid) : $transactionUuid));
 
@@ -232,12 +250,13 @@ class WonderPayment {
      * @param string|null $refundNote 退款备注 (可选)
      * @return array 退款结果
      */
-    public function refundTransaction($referenceNumber, $transactionUuid, $refundAmount, $orderNumber = null, $refundNote = null) {
+    public function refundTransaction($referenceNumber, $transactionUuid, $refundAmount, $orderNumber = null, $refundNote = null)
+    {
         try {
-            $this->logInfo('Refunding transaction: ' . $referenceNumber . 
-                ' - ' . (is_array($transactionUuid) ? json_encode($transactionUuid) : $transactionUuid) . 
-                ' - ' . $refundAmount . 
-                ' - order_number: ' . ($orderNumber ?: 'NULL') . 
+            $this->logInfo('Refunding transaction: ' . $referenceNumber .
+                ' - ' . (is_array($transactionUuid) ? json_encode($transactionUuid) : $transactionUuid) .
+                ' - ' . $refundAmount .
+                ' - order_number: ' . ($orderNumber ?: 'NULL') .
                 ' - note: ' . ($refundNote ?: 'NULL'));
 
             $params = array(
@@ -279,7 +298,8 @@ class WonderPayment {
      * @param string $referenceNumber 订单参考号
      * @return array 作废结果
      */
-    public function voidOrder($referenceNumber) {
+    public function voidOrder($referenceNumber)
+    {
         try {
             $this->logInfo('Voiding order: ' . $referenceNumber);
 
@@ -305,7 +325,8 @@ class WonderPayment {
      *
      * @return array 验证结果
      */
-    public function verifyConfig() {
+    public function verifyConfig()
+    {
         try {
             $this->logInfo('Verifying SDK config');
 
@@ -326,7 +347,8 @@ class WonderPayment {
     /**
      * 记录信息日志
      */
-    private function logInfo($message) {
+    private function logInfo($message)
+    {
         if ($this->log) {
             $this->log->write('WonderPayment INFO: ' . $message);
         }
@@ -335,7 +357,8 @@ class WonderPayment {
     /**
      * 记录错误日志
      */
-    private function logError($message) {
+    private function logError($message)
+    {
         if ($this->log) {
             $this->log->write('WonderPayment ERROR: ' . $message);
         }
@@ -349,7 +372,8 @@ class WonderPayment {
      * @return array 二维码信息
      * @throws \Exception
      */
-    public function createQRCode() {
+    public function createQRCode()
+    {
         try {
             $this->logInfo('Creating QR code');
 
@@ -371,7 +395,8 @@ class WonderPayment {
      * @return array 状态信息
      * @throws \Exception
      */
-    public function getQRCodeStatus($uuid) {
+    public function getQRCodeStatus($uuid)
+    {
         try {
             $this->logInfo('Getting QR code status: ' . $uuid);
 
@@ -392,7 +417,8 @@ class WonderPayment {
      * @return array 商家列表
      * @throws \Exception
      */
-    public function getBusinesses() {
+    public function getBusinesses()
+    {
         try {
             $this->logInfo('Getting businesses list');
 
@@ -415,7 +441,8 @@ class WonderPayment {
      * @return array App ID 信息
      * @throws \Exception
      */
-    public function generateAppId($businessId, $publicKey) {
+    public function generateAppId($businessId, $publicKey)
+    {
         try {
             $this->logInfo('Generating app_id for business: ' . $businessId);
 
@@ -440,7 +467,8 @@ class WonderPayment {
      * @return WonderPayment
      * @throws \Exception
      */
-    public static function createForQRCode($environment, $jwtToken = '', $userAccessToken = '', $language = 'zh-CN') {
+    public static function createForQRCode($environment, $jwtToken = '', $userAccessToken = '', $language = 'zh-CN')
+    {
         // 如果没有提供 JWT Token，使用测试环境的默认值
         if (empty($jwtToken)) {
             if ($environment === 'stg') {

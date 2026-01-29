@@ -1,13 +1,15 @@
 <?php
+
 /**
  * WonderPayment 后台模型
  */
-
-class ModelExtensionPaymentWonderpayment extends Model {
+class ModelExtensionPaymentWonderpayment extends Model
+{
     /**
      * 插件安装 - 创建数据库表
      */
-    public function install() {
+    public function install()
+    {
         $this->db->query("
             CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "wonderpayment_order` (
                 `order_id` int(11) NOT NULL,
@@ -48,12 +50,14 @@ class ModelExtensionPaymentWonderpayment extends Model {
     /**
      * 插件卸载 - 删除数据库表
      */
-    public function uninstall() {
+    public function uninstall()
+    {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "wonderpayment_order`");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "wonderpayment_refund`");
     }
 
-    protected function ensureCurrencies() {
+    protected function ensureCurrencies()
+    {
         $currencies = array(
             array(
                 'code' => 'HKD',
@@ -86,7 +90,8 @@ class ModelExtensionPaymentWonderpayment extends Model {
         }
     }
 
-    public function ensureRefundSchema() {
+    public function ensureRefundSchema()
+    {
         $columns = array();
         $query = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "wonderpayment_refund`");
         foreach ($query->rows as $row) {
@@ -101,7 +106,8 @@ class ModelExtensionPaymentWonderpayment extends Model {
         }
     }
 
-    public function getRefundSummary($order_id, $originalCurrency, $settlementCurrency, $rate) {
+    public function getRefundSummary($order_id, $originalCurrency, $settlementCurrency, $rate)
+    {
         $refunds = $this->getRefundsByOrderId($order_id);
         $total_original = 0.0;
         $total_settlement = 0.0;
@@ -159,7 +165,8 @@ class ModelExtensionPaymentWonderpayment extends Model {
     /**
      * 添加或更新订单记录
      */
-    public function addOrderRecord($order_id, $reference_number, $order_number = '', $transaction_uuid = null) {
+    public function addOrderRecord($order_id, $reference_number, $order_number = '', $transaction_uuid = null)
+    {
         $query = $this->db->query("
             SELECT * FROM `" . DB_PREFIX . "wonderpayment_order`
             WHERE order_id = '" . (int)$order_id . "'
@@ -210,7 +217,8 @@ class ModelExtensionPaymentWonderpayment extends Model {
     /**
      * 获取订单记录
      */
-    public function getOrderRecord($order_id) {
+    public function getOrderRecord($order_id)
+    {
         $query = $this->db->query("
             SELECT * FROM `" . DB_PREFIX . "wonderpayment_order`
             WHERE order_id = '" . (int)$order_id . "'
@@ -222,7 +230,8 @@ class ModelExtensionPaymentWonderpayment extends Model {
     /**
      * 更新支付状态
      */
-    public function updatePaymentStatus($order_id, $status) {
+    public function updatePaymentStatus($order_id, $status)
+    {
         $this->db->query("
             UPDATE `" . DB_PREFIX . "wonderpayment_order`
             SET status = '" . $this->db->escape($status) . "',
@@ -234,7 +243,8 @@ class ModelExtensionPaymentWonderpayment extends Model {
     /**
      * 获取订单支付信息（包括额外字段）
      */
-    public function getOrderPaymentInfo($order_id) {
+    public function getOrderPaymentInfo($order_id)
+    {
         $query = $this->db->query("
             SELECT * FROM `" . DB_PREFIX . "wonderpayment_order`
             WHERE order_id = '" . (int)$order_id . "'
@@ -246,7 +256,8 @@ class ModelExtensionPaymentWonderpayment extends Model {
     /**
      * 获取退款记录
      */
-    public function getRefundsByOrderId($order_id) {
+    public function getRefundsByOrderId($order_id)
+    {
         $query = $this->db->query("
             SELECT * FROM `" . DB_PREFIX . "wonderpayment_refund`
             WHERE order_id = '" . (int)$order_id . "'
@@ -259,7 +270,8 @@ class ModelExtensionPaymentWonderpayment extends Model {
     /**
      * 获取已退款总额
      */
-    public function getTotalRefundedAmount($order_id) {
+    public function getTotalRefundedAmount($order_id)
+    {
         $query = $this->db->query("
             SELECT SUM(refund_amount) as total
             FROM `" . DB_PREFIX . "wonderpayment_refund`
@@ -268,11 +280,12 @@ class ModelExtensionPaymentWonderpayment extends Model {
 
         return $query->row['total'] ?? 0;
     }
-    
+
     /**
      * 更新交易UUID
      */
-    public function updateTransactionUuid($order_id, $transaction_uuid) {
+    public function updateTransactionUuid($order_id, $transaction_uuid)
+    {
         $this->db->query("
             UPDATE `" . DB_PREFIX . "wonderpayment_order`
             SET transaction_uuid = '" . $this->db->escape($transaction_uuid) . "',
@@ -280,11 +293,12 @@ class ModelExtensionPaymentWonderpayment extends Model {
             WHERE order_id = '" . (int)$order_id . "'
         ");
     }
-    
+
     /**
      * 通过reference_number查询订单记录
      */
-    public function getOrderRecordByReferenceNumber($reference_number) {
+    public function getOrderRecordByReferenceNumber($reference_number)
+    {
         $query = $this->db->query("
             SELECT * FROM `" . DB_PREFIX . "wonderpayment_order`
             WHERE reference_number = '" . $this->db->escape($reference_number) . "'

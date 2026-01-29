@@ -1,0 +1,66 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "8f4b80c29dd99e928991aaad7a769ec8",
+    "packages": [
+        {
+            "name": "wonderpayment/sdk",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wonderpayment/payment-sdk-php.git",
+                "reference": "bf6e5661a788296016cf514dd63f7687b3ddbb14"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wonderpayment/payment-sdk-php/zipball/bf6e5661a788296016cf514dd63f7687b3ddbb14",
+                "reference": "bf6e5661a788296016cf514dd63f7687b3ddbb14",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-openssl": "*",
+                "php": "^5.6 || ^7.4 || ^8.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WonderPayment\\": "src/"
+                },
+                "files": [
+                    "src/PaymentSDK.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Support",
+                    "email": "support@wonder.app"
+                }
+            ],
+            "description": "Core wonder payment SDK",
+            "time": "2026-01-08T08:11:04+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "wonderpayment/sdk": 20
+    },
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
+}

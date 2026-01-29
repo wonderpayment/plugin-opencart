@@ -1,0 +1,50 @@
+name: Build OpenCart 3 OCMOD Package
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.0"
+          tools: composer:v2
+
+      - name: Update SDK (composer)
+        working-directory: opencart3/upload
+        run: composer update --no-dev --prefer-source --no-interaction
+
+      - name: Prepare dist
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp -R opencart3/upload dist/upload
+          if [ -f opencart3/install.xml ]; then
+            cp opencart3/install.xml dist/install.xml
+          fi
+
+      - name: Build package
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          NAME="wonderpayment-oc3-${TAG}.ocmod.zip"
+          (cd dist && zip -r "../${NAME}" .)
+          echo "ASSET_NAME=${NAME}" >> "$GITHUB_ENV"
+
+      - name: Publish release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ASSET_NAME }}

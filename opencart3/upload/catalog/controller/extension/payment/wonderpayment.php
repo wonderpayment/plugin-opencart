@@ -5,11 +5,14 @@
  */
 
 // 开启错误报告以便调试
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-class ControllerExtensionPaymentWonderpayment extends Controller {
-    public function index() {
+class ControllerExtensionPaymentWonderpayment extends Controller
+{
+    public function index()
+    {
         $this->load->language('extension/payment/wonderpayment');
 
         $data['button_confirm'] = $this->language->get('button_confirm');
@@ -41,7 +44,8 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
      * 用户点击确认按钮后调用此方法创建支付
      * 根据文档要求：生成reference_number，调用createPaymentLink，返回payment_link
      */
-    public function confirm() {
+    public function confirm()
+    {
         $json = array();
 
         try {
@@ -97,9 +101,10 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
             $log->write('成功加载 WonderPayment 库文件');
 
             // 构建配置
-            $callback_url = $this->url->link('extension/payment/wonderpayment/callback', '', true);
-            $redirect_url = $this->url->link('extension/payment/wonderpayment/checkPaymentStatus', '', true);
+            $callback_url = $this->getWebhookUrl();
+            $redirect_url = $this->getRedirectUrl();
 
+            $log->write('Redirect URL (create payment): ' . $redirect_url);
             $config = array(
                 'appid' => $appid,
                 'signaturePrivateKey' => $privateKey,
@@ -179,7 +184,8 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
     /**
      * 异步回调处理
      */
-    public function callback() {
+    public function callback()
+    {
         $this->load->model('checkout/order');
 
         // 初始化日志
@@ -190,7 +196,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
         // 验证回调数据
         if (isset($this->request->post['reference_number']) || isset($this->request->post['order_id'])) {
             $reference_number = isset($this->request->post['reference_number']) ? $this->request->post['reference_number'] : null;
-            
+
             if ($reference_number) {
                 // 通过reference_number查找订单记录，然后获取实际的订单ID
                 $this->load->model('extension/payment/wonderpayment');
@@ -232,7 +238,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                     'signaturePrivateKey' => $this->config->get('payment_wonderpayment_private_key'),
                     'webhookVerifyPublicKey' => $this->config->get('payment_wonderpayment_public_key'),
                     'callback_url' => '',
-                    'redirect_url' => '',
+                    'redirect_url' => $this->getRedirectUrl(),
                     'environment' => $this->config->get('payment_wonderpayment_environment') ? $this->config->get('payment_wonderpayment_environment') : 'stg'
                 );
 
@@ -253,15 +259,15 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                             try {
                                 $reference_number = isset($this->request->post['reference_number']) ? $this->request->post['reference_number'] : $order_id;
                                 $order_number = isset($this->request->post['order_id']) ? $this->request->post['order_id'] : null;
-                                
+
                                 $log->write('Webhook: 订单支付成功，查询WonderPayment获取transaction_uuid，reference_number: ' . $reference_number);
-                                
+
                                 // 查询订单详情
                                 $order_response = $wonderpayment->queryOrder($reference_number, $order_number, null);
-                                
+
                                 if (isset($order_response['code']) && $order_response['code'] == 200 && isset($order_response['data']['order'])) {
                                     $order_data = $order_response['data']['order'];
-                                    
+
                                     // 提取transaction_uuid
                                     $transaction_uuid = null;
                                     if (isset($order_data['transactions']) && is_array($order_data['transactions']) && !empty($order_data['transactions'])) {
@@ -273,13 +279,13 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                                             }
                                         }
                                     }
-                                    
+
                                     // 如果仍未找到，尝试其他位置
                                     if (empty($transaction_uuid) && isset($order_data['transaction']) && isset($order_data['transaction']['uuid'])) {
                                         $transaction_uuid = $order_data['transaction']['uuid'];
                                         $log->write('Webhook: 从transaction对象获取transaction_uuid: ' . $transaction_uuid);
                                     }
-                                    
+
                                     // 如果获取到transaction_uuid，更新数据库
                                     if (!empty($transaction_uuid)) {
                                         $this->load->model('extension/payment/wonderpayment');
@@ -329,17 +335,18 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
      * 检查支付状态
      * 用于用户点击"我已支付"后查询订单状态
      */
-    public function checkPaymentStatus() {
+    public function checkPaymentStatus()
+    {
         $this->load->language('extension/payment/wonderpayment');
         $this->load->model('checkout/order');
         $this->load->model('extension/payment/wonderpayment');
 
         $order_id = null;
-        
+
         // 首先尝试从会话获取订单ID
-        if(isset($this->session->data['order_id'])) {
+        if (isset($this->session->data['order_id'])) {
             $order_id = $this->session->data['order_id'];
-        } 
+        }
 
         // 如果会话中没有订单ID，尝试从POST/GET请求中获取
         if (!$order_id) {
@@ -355,7 +362,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
         if (!$order_id) {
             // 检查请求中是否包含reference_number或其他标识符
             $reference_number = null;
-            
+
             // 检查可能的参数名称
             if (isset($this->request->get['reference_number'])) {
                 $reference_number = $this->request->get['reference_number'];
@@ -364,7 +371,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
             } elseif (isset($this->request->get['ref'])) {
                 $reference_number = $this->request->get['ref'];
             }
-            
+
             // 如果找到了reference_number，通过数据库查找订单ID
             if ($reference_number) {
                 $order_record = $this->model_extension_payment_wonderpayment->getOrderRecordByReferenceNumber($reference_number);
@@ -422,7 +429,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
             'signaturePrivateKey' => $this->config->get('payment_wonderpayment_private_key'),
             'webhookVerifyPublicKey' => $this->config->get('payment_wonderpayment_public_key'),
             'callback_url' => '',
-            'redirect_url' => '',
+            'redirect_url' => $this->getRedirectUrl(),
             'environment' => $this->config->get('payment_wonderpayment_environment') ? $this->config->get('payment_wonderpayment_environment') : 'stg'
         );
 
@@ -456,53 +463,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
 
                 // 如果订单已支付，更新订单状态并跳转到成功页面
                 if ($correspondence_state === 'paid') {
-                    $log->write('WonderPayment 订单 #' . $order_id . ' 支付成功，更新订单状态');
-
-                    // 更新订单状态
-                    $order_status_id = $this->config->get('payment_wonderpayment_order_status_id');
-                    $this->model_checkout_order->addOrderHistory($order_id, $order_status_id);
-
-                    // 更新数据库中的支付状态
-                    $this->load->model('extension/payment/wonderpayment');
-                    $this->model_extension_payment_wonderpayment->updatePaymentStatus($order_id, 'paid');
-
-                    // 在支付成功后，查询并保存transaction_uuid
-                    try {
-                        // 提取transaction_uuid
-                        $transaction_uuid = null;
-                        if (isset($order_data['transactions']) && is_array($order_data['transactions']) && !empty($order_data['transactions'])) {
-                            foreach ($order_data['transactions'] as $transaction) {
-                                if (isset($transaction['uuid']) && !empty($transaction['uuid'])) {
-                                    $transaction_uuid = $transaction['uuid'];
-                                    $log->write('checkPaymentStatus: 从transactions数组获取transaction_uuid: ' . $transaction_uuid);
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        // 如果仍未找到，尝试其他位置
-                        if (empty($transaction_uuid) && isset($order_data['transaction']) && isset($order_data['transaction']['uuid'])) {
-                            $transaction_uuid = $order_data['transaction']['uuid'];
-                            $log->write('checkPaymentStatus: 从transaction对象获取transaction_uuid: ' . $transaction_uuid);
-                        }
-                        
-                        // 如果获取到transaction_uuid，更新数据库
-                        if (!empty($transaction_uuid)) {
-                            $this->load->model('extension/payment/wonderpayment');
-                            // 安全调用模型方法，避免代理对象问题
-                            if (isset($this->model_extension_payment_wonderpayment) && method_exists($this->model_extension_payment_wonderpayment, 'updateTransactionUuid')) {
-                                $this->model_extension_payment_wonderpayment->updateTransactionUuid($order_id, $transaction_uuid);
-                                $log->write('checkPaymentStatus: transaction_uuid已更新到数据库，订单ID: ' . $order_id . ', UUID: ' . $transaction_uuid);
-                            } else {
-                                $log->write('checkPaymentStatus: 模型或方法不存在，无法更新transaction_uuid');
-                            }
-                        } else {
-                            $log->write('checkPaymentStatus: 未能从API响应中获取到transaction_uuid');
-                        }
-                    } catch (Exception $e) {
-                        $log->write('checkPaymentStatus: 查询transaction_uuid时出错: ' . $e->getMessage());
-                        $log->write('checkPaymentStatus: 错误详情: ' . $e->getTraceAsString());
-                    }
+                    $log->write('WonderPayment 订单 #' . $order_id . ' 支付成功（仅查询，不更新订单状态，等待Webhook）');
 
                     // 检查是否是AJAX请求
                     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
@@ -522,10 +483,11 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                 $log->write('订单 #' . $order_id . ' 未支付，生成新的支付链接');
 
                 // 构建回调 URL
-                $callback_url = $this->url->link('extension/payment/wonderpayment/callback', '', true);
-                $redirect_url = $this->url->link('extension/payment/wonderpayment/checkPaymentStatus', '', true);
+                $callback_url = $this->getWebhookUrl();
+                $redirect_url = $this->getRedirectUrl();
 
                 // 更新配置
+                $log->write('Redirect URL (recreate payment): ' . $redirect_url);
                 $config['callback_url'] = $callback_url;
                 $config['redirect_url'] = $redirect_url;
 
@@ -606,7 +568,8 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
      * 退款功能
      * 用户在订单详情页面点击退款按钮后调用
      */
-    public function refund() {
+    public function refund()
+    {
         $this->load->language('extension/payment/wonderpayment');
         $this->load->model('checkout/order');
         $this->load->model('extension/payment/wonderpayment');
@@ -617,7 +580,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
         $log = new Log('wonderpayment.log');
         $log->write('=== WonderPayment 退款请求开始 ===');
 
-        if(!isset($this->request->post['order_id'])) {
+        if (!isset($this->request->post['order_id'])) {
             $log->write('退款失败：缺少订单ID参数');
             $json['error'] = $this->language->get('error_order_id');
         } else {
@@ -665,7 +628,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                             'signaturePrivateKey' => $this->config->get('payment_wonderpayment_private_key'),
                             'webhookVerifyPublicKey' => $this->config->get('payment_wonderpayment_public_key'),
                             'callback_url' => '',
-                            'redirect_url' => '',
+                            'redirect_url' => $this->getRedirectUrl(),
                             'environment' => $this->config->get('payment_wonderpayment_environment') ? $this->config->get('payment_wonderpayment_environment') : 'stg'
                         );
 
@@ -708,13 +671,13 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                                     if (isset($this->request->post['amount'])) {
                                         $refundAmount = (float)$this->request->post['amount'];
                                     } else {
-                                    $refundAmount = (float)$transaction['amount'];
+                                        $refundAmount = (float)$transaction['amount'];
                                     }
-                                    
+
                                     // 验证退款金额不能超过可退金额（原始货币）
                                     $maxRefundableAmount = (float)$transaction['amount'];
                                     $alreadyRefundedAmount = 0;
-                                    
+
                                     // 检查已退款金额
                                     $existingRefunds = $this->model_extension_payment_wonderpayment->getRefundsByOrderId($order_id);
                                     foreach ($existingRefunds as $refund) {
@@ -729,9 +692,9 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                                             }
                                         }
                                     }
-                                    
+
                                     $availableRefund = $maxRefundableAmount - $alreadyRefundedAmount;
-                                    
+
                                     if ($refundAmount > $availableRefund) {
                                         $log->write('退款金额超出可退金额: 请求金额=' . $refundAmount . ', 可退金额=' . $availableRefund);
                                         $json['error'] = $this->language->get('error_refund_amount_exceeded');
@@ -739,7 +702,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                                         $this->response->setOutput(json_encode($json));
                                         return;
                                     }
-                                    
+
                                     if ($refundAmount <= 0) {
                                         $log->write('退款金额必须大于0: ' . $refundAmount);
                                         $json['error'] = $this->language->get('text_invalid_refund_amount');
@@ -747,7 +710,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                                         $this->response->setOutput(json_encode($json));
                                         return;
                                     }
-                                    
+
                                     $refundNote = isset($this->request->post['note']) ? $this->request->post['note'] : '';
 
                                     $refundAmountSettlement = $refundAmount;
@@ -768,7 +731,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                                         $refundResponse['original_currency'] = $originalCurrency;
                                         $refundResponse['settlement_amount'] = $refundAmountSettlement;
                                         $refundResponse['settlement_currency'] = $settlementCurrency;
-                                        
+
                                         // 保存退款记录到数据库
                                         $this->model_extension_payment_wonderpayment->addRefundRecord(
                                             $order_id,
@@ -818,11 +781,13 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
         $this->response->setOutput(json_encode($json));
     }
 
-    protected function logJson($log, $prefix, $data) {
+    protected function logJson($log, $prefix, $data)
+    {
         $log->write($prefix . json_encode($this->sanitizeLogData($data), JSON_UNESCAPED_UNICODE));
     }
 
-    protected function sanitizeLogData($data) {
+    protected function sanitizeLogData($data)
+    {
         $sensitive_keys = array(
             'email',
             'phone',
@@ -854,7 +819,8 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
         return $data;
     }
 
-    protected function resolveWonderpaymentLibraryPath() {
+    protected function resolveWonderpaymentLibraryPath()
+    {
         $paths = array(
             DIR_SYSTEM . 'library/wonderpayment.php',
             DIR_APPLICATION . '../system/library/wonderpayment.php',
@@ -870,7 +836,8 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
         return null;
     }
 
-    protected function isInvalidCurrencyResponse($response) {
+    protected function isInvalidCurrencyResponse($response)
+    {
         if (!is_array($response)) {
             return false;
         }
@@ -890,10 +857,15 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
         return false;
     }
 
-    protected function buildOrderData($order_info, $order_id, $reference_number, $callback_url, $redirect_url, $log) {
+    protected function buildOrderData($order_info, $order_id, $reference_number, $callback_url, $redirect_url, $log)
+    {
         $originalCurrency = $order_info['currency_code'];
         $originalTotal = $this->currency->format($order_info['total'], $originalCurrency, $order_info['currency_value'], false);
         $totalSettlement = $originalTotal;
+        $currencyValue = (float)$order_info['currency_value'];
+        if ($currencyValue <= 0) {
+            $currencyValue = 1.0;
+        }
 
         $this->load->model('checkout/order');
         $order_products = $this->model_checkout_order->getOrderProducts($order_id);
@@ -903,8 +875,8 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
         $line_total = 0.0;
 
         foreach ($order_products as $product) {
-            $item_price = (float)$product['price'];
-            $item_total = (float)$product['total'];
+            $item_price = (float)$product['price'] * $currencyValue;
+            $item_total = (float)$product['total'] * $currencyValue;
             $item_price_settlement = $item_price;
             $item_total_settlement = $item_total;
 
@@ -929,7 +901,7 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
                 continue;
             }
 
-            $converted = $row_value;
+            $converted = $row_value * $currencyValue;
             $line_items[] = array(
                 'label' => strip_tags(html_entity_decode($total_row['title'], ENT_QUOTES, 'UTF-8')),
                 'purchasable_type' => 'Listing',
@@ -978,5 +950,53 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
             'language' => $this->config->get('payment_wonderpayment_language') ? $this->config->get('payment_wonderpayment_language') : 'en-gb',
             'line_items' => $line_items
         );
+    }
+
+    protected function getWebhookUrl()
+    {
+        $environment = $this->config->get('payment_wonderpayment_environment') ?: 'stg';
+        if ($environment === 'stg') {
+            return 'https://www-nas.u2505911.nyat.app:34365/webhook.php';
+        }
+
+        $scheme = (!empty($this->request->server['HTTPS']) && $this->request->server['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = isset($this->request->server['HTTP_HOST']) ? $this->request->server['HTTP_HOST'] : '';
+        if ($host) {
+            return $scheme . '://' . $host . '/webhook.php';
+        }
+
+        $base = $this->config->get('config_ssl') ?: $this->config->get('config_url');
+        if ($base && substr($base, -1) !== '/') {
+            $base .= '/';
+        }
+        return $base . 'webhook.php';
+    }
+
+    protected function getRedirectUrl()
+    {
+        $base = $this->config->get('config_ssl') ?: $this->config->get('config_url');
+        if (!$base && defined('HTTP_SERVER')) {
+            $base = HTTP_SERVER;
+        }
+        if ($base && substr($base, -1) !== '/') {
+            $base .= '/';
+        }
+        return $base . 'wonder_redirect.php';
+    }
+
+    public function redirect()
+    {
+        $next = 'checkout/success';
+        if (isset($this->request->get['next']) && $this->request->get['next'] !== '') {
+            $next = $this->request->get['next'];
+        }
+
+        // Handle double-encoding from upstream redirects.
+        $decoded = urldecode($next);
+        if (strpos($decoded, '%2F') !== false) {
+            $decoded = urldecode($decoded);
+        }
+
+        $this->response->redirect($this->url->link($decoded, '', true));
     }
 }

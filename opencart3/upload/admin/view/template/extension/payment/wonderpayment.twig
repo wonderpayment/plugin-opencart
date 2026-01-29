@@ -29,25 +29,28 @@
         <div class="form-group">
           <div class="col-sm-12">
             <p class="help-block">{{ text_qrcode_help }}</p>
-<div class="alert alert-info" style="margin-bottom: 15px;">
-              <h5 style="margin-top: 0;"><i class="fa fa-info-circle"></i> {{ text_config_process_title }}：</h5>
+<div class="alert alert-info" style="margin-bottom: 15px; background: #ffffff; border-color: #dcdcdc; color: #111111;">
+              <h5 style="margin-top: 0; color: #111111;"><i class="fa fa-info-circle"></i> {{ text_config_process_title }}：</h5>
               <ol style="margin-bottom: 0; padding-left: 20px;">
                 <li><strong>{{ text_step_scan }}</strong>：{{ text_config_process_step1 }}</li>
                 <li><strong>{{ text_step_select }}</strong>：{{ text_config_process_step2 }}</li>
                 <li><strong>{{ text_step_other_config }}</strong>：{{ text_config_process_step3 }}</li>
               </ol>
             </div>
-            <div class="alert alert-warning" style="margin-bottom: 15px;">
-              <h5 style="margin-top: 0;"><i class="fa fa-exclamation-triangle"></i> {{ text_config_notice_title }}：</h5>
-              <ul style="margin-bottom: 0; padding-left: 20px;">
+            <div class="alert alert-warning" style="margin-bottom: 15px; background: #ffffff; border-color: #e0b4b4; color: #c0392b;">
+              <h5 style="margin-top: 0; color: #c0392b;"><i class="fa fa-exclamation-triangle"></i> {{ text_config_notice_title }}：</h5>
+              <ul style="margin-bottom: 0; padding-left: 20px; color: #c0392b;">
                 <li>{{ text_config_notice_item1 }}</li>
                 <li>{{ text_config_notice_item2 }}</li>
                 <li>{{ text_config_notice_item3 }}</li>
                 <li>{{ text_config_notice_item4 }}</li>
               </ul>
             </div>
-            <button type="button" id="btn-open-qrcode-modal" class="btn btn-info btn-lg">
+            <button type="button" id="btn-open-qrcode-modal" class="btn btn-info btn-lg" style="background: #4f9ef5; border-color: #4f9ef5; color: #ffffff;">
               <i class="fa fa-qrcode"></i> {{ button_generate_qrcode }}
+            </button>
+            <button type="button" id="btn-open-config-modal" class="btn btn-default btn-lg" style="margin-left: 10px; background: #eef5ff; border-color: #cfe3ff; color: #1f5fa8;">
+              <i class="fa fa-eye"></i> {{ button_view_config }}
             </button>
           </div>
         </div>
@@ -58,8 +61,8 @@
     <div class="modal fade" id="qrcode-modal" tabindex="-1" role="dialog" aria-labelledby="qrcode-modal-label" data-backdrop="static" data-keyboard="false">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
-          <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-top-left-radius: 12px; border-top-right-radius: 12px; padding: 20px;">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; opacity: 0.8;">
+          <div class="modal-header" style="background: linear-gradient(90deg, #4f9ef5 0%, #bcd9ff 100%); color: #153559; border-top-left-radius: 12px; border-top-right-radius: 12px; padding: 20px;">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #153559; opacity: 0.8;">
               <span aria-hidden="true">&times;</span>
             </button>
             <h4 class="modal-title" id="qrcode-modal-label" style="font-size: 24px; font-weight: 600; margin: 0;">
@@ -71,7 +74,7 @@
             <!-- 步骤指示器 -->
             <div class="steps-indicator" style="display: flex; justify-content: space-between; margin-bottom: 30px; position: relative;">
               <div class="step clickable active" data-step="1" style="flex: 1; text-align: center; position: relative; z-index: 1; cursor: pointer;">
-                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: 600;">1</div>
+                <div class="step-circle" style="width: 40px; height: 40px; border-radius: 50%; background: #4f9ef5; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: 600;">1</div>
                 <div class="step-label" style="font-size: 14px; color: #666;">{{ text_step_scan }}</div>
               </div>
               <div class="step clickable" data-step="2" style="flex: 1; text-align: center; position: relative; z-index: 1; cursor: pointer;">
@@ -88,7 +91,7 @@
             <div id="step-1" class="step-content" style="display: block;">
               <div style="text-align: center; padding: 20px;">
                 <div id="qrcode-loading" style="display: none;">
-                  <i class="fa fa-spinner fa-spin fa-3x" style="color: #667eea;"></i>
+                  <i class="fa fa-spinner fa-spin fa-3x" style="color: #4f9ef5;"></i>
                   <p style="margin-top: 15px; color: #666;">{{ text_loading }}</p>
                 </div>
                 <div id="qrcode-display" style="display: none;">
@@ -106,8 +109,8 @@
                     <div id="qrcode-hint" style="margin-top: 6px; color: #888;"></div>
                   </div>
                 </div>
-                <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left;">
-                  <h5 style="margin-top: 0; color: #667eea;"><i class="fa fa-info-circle"></i> {{ text_operation_instructions }}：</h5>
+                <div style="background: #eef5ff; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left;">
+                  <h5 style="margin-top: 0; color: #1f5fa8;"><i class="fa fa-info-circle"></i> {{ text_operation_instructions }}：</h5>
                   <ol style="margin-bottom: 0; padding-left: 20px; color: #555;">
                     <li>{{ text_operation_step1 }}</li>
                     <li>{{ text_operation_step2 }}</li>
@@ -129,12 +132,12 @@
                   <button type="button" id="btn-back-to-step1" class="btn btn-default" style="margin-right: 10px;">
                     <i class="fa fa-arrow-left"></i> {{ text_back }}
                   </button>
-                  <button type="button" id="btn-confirm-business" class="btn btn-primary" disabled style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                  <button type="button" id="btn-confirm-business" class="btn btn-primary" disabled style="background: #4f9ef5; border-color: #4f9ef5; color: #ffffff;">
                     <i class="fa fa-check"></i> {{ text_confirm_business }}
                   </button>
                 </div>
-                <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                  <h5 style="margin-top: 0; color: #667eea;"><i class="fa fa-info-circle"></i> {{ text_operation_instructions }}：</h5>
+                <div style="background: #eef5ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                  <h5 style="margin-top: 0; color: #1f5fa8;"><i class="fa fa-info-circle"></i> {{ text_operation_instructions }}：</h5>
                   <ol style="margin-bottom: 0; padding-left: 20px; color: #555;">
                     <li>{{ text_operation_select_step1 }}</li>
                     <li>{{ text_operation_select_step2 }}</li>
@@ -150,17 +153,10 @@
               <div style="padding: 20px;">
                 <h4 style="margin-bottom: 20px; color: #333; font-size: 18px;">{{ text_step_other_config }}</h4>
 
-                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_webhook_public_key }}</h5>
-                  <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_webhook_public_key }}</p>
-                  <textarea name="payment_wonderpayment_public_key" rows="5" placeholder="{{ entry_webhook_public_key_placeholder }}" id="result-webhook-public-key" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
-                  {% if error_public_key %}
-                  <div class="text-danger" style="margin-top: 5px;">{{ error_public_key }}</div>
-                  {% endif %}
-                </div>
+                <textarea rows="5" placeholder="{{ entry_webhook_public_key_placeholder }}" id="result-webhook-public-key" readonly="readonly" style="display: none;"></textarea>
 
-                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_environment }}</h5>
+                <div style="background: #eef5ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #1f5fa8;">{{ entry_environment }}</h5>
                   <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_environment }}</p>
                   <select name="payment_wonderpayment_environment" id="modal-input-environment" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                     {% if payment_wonderpayment_environment == 'stg' %}
@@ -176,8 +172,8 @@
                   </select>
                 </div>
 
-                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_language }}</h5>
+                <div style="background: #eef5ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #1f5fa8;">{{ entry_language }}</h5>
                   <select name="payment_wonderpayment_language" id="modal-input-language" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                     {% if payment_wonderpayment_language == 'zh-cn' %}
                     <option value="zh-cn" selected="selected">{{ text_zh_cn }}</option>
@@ -196,35 +192,9 @@
                   </select>
                 </div>
 
-                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_order_status }}</h5>
-                  <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_order_status }}</p>
-                  <select name="payment_wonderpayment_order_status_id" id="modal-input-order-status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    {% for order_status in order_statuses %}
-                      {% if order_status.order_status_id == payment_wonderpayment_order_status_id %}
-                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-                      {% else %}
-                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-                      {% endif %}
-                    {% endfor %}
-                  </select>
-                </div>
 
-                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_refund_order_status }}</h5>
-                  <select name="payment_wonderpayment_refund_order_status_id" id="modal-input-refund-order-status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    {% for order_status in order_statuses %}
-                      {% if order_status.order_status_id == payment_wonderpayment_refund_order_status_id %}
-                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-                      {% else %}
-                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-                      {% endif %}
-                    {% endfor %}
-                  </select>
-                </div>
-
-                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_geo_zone }}</h5>
+                <div style="background: #eef5ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #1f5fa8;">{{ entry_geo_zone }}</h5>
                   <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_geo_zone }}</p>
                   <select name="payment_wonderpayment_geo_zone_id" id="modal-input-geo-zone" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                     <option value="0">{{ text_all_zones }}</option>
@@ -238,8 +208,8 @@
                   </select>
                 </div>
 
-                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_status }}</h5>
+                <div style="background: #eef5ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #1f5fa8;">{{ entry_status }}</h5>
                   <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_status }}</p>
                   <select name="payment_wonderpayment_status" id="modal-input-status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                     {% if payment_wonderpayment_status %}
@@ -252,14 +222,9 @@
                   </select>
                 </div>
 
-                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_sort_order }}</h5>
-                  <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_sort_order }}</p>
-                  <input type="text" name="payment_wonderpayment_sort_order" value="{{ payment_wonderpayment_sort_order }}" placeholder="{{ entry_sort_order }}" id="modal-input-sort-order" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"/>
-                </div>
 
-                <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                  <h5 style="margin-bottom: 15px; color: #667eea;">{{ entry_debug }}</h5>
+                <div style="background: #eef5ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h5 style="margin-bottom: 15px; color: #1f5fa8;">{{ entry_debug }}</h5>
                   <p style="margin-bottom: 10px; color: #666; font-size: 13px;">{{ help_debug }}</p>
                   <select name="payment_wonderpayment_debug" id="modal-input-debug" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                     {% if payment_wonderpayment_debug %}
@@ -276,13 +241,13 @@
                   <button type="button" id="btn-back-to-step2" class="btn btn-default" style="margin-right: 10px;">
                     <i class="fa fa-arrow-left"></i> {{ text_back }}
                   </button>
-                  <button type="button" id="btn-save-config" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                  <button type="button" id="btn-save-config" class="btn btn-primary" style="background: #4f9ef5; border-color: #4f9ef5; color: #ffffff;">
                     <i class="fa fa-save"></i> {{ button_save }}
                   </button>
                 </div>
 
-                <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                  <h5 style="margin-top: 0; color: #667eea;"><i class="fa fa-info-circle"></i> {{ text_operation_instructions }}：</h5>
+                <div style="background: #eef5ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                  <h5 style="margin-top: 0; color: #1f5fa8;"><i class="fa fa-info-circle"></i> {{ text_operation_instructions }}：</h5>
                   <ol style="margin-bottom: 0; padding-left: 20px; color: #555;">
                     <li>{{ text_operation_config_step1 }}</li>
                     <li>{{ text_operation_config_step2 }}</li>
@@ -300,7 +265,92 @@
       </div>
     </div>
 
-    <div class="panel panel-default">
+    <!-- 当前配置查看/编辑弹窗 -->
+    <div class="modal fade" id="config-modal" tabindex="-1" role="dialog" aria-labelledby="config-modal-label" data-backdrop="static" data-keyboard="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
+          <div class="modal-header" style="background: linear-gradient(90deg, #4f9ef5 0%, #bcd9ff 100%); color: #153559; border-top-left-radius: 12px; border-top-right-radius: 12px; padding: 18px 20px;">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #153559; opacity: 0.8;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="config-modal-label" style="font-size: 20px; font-weight: 600; margin: 0;">
+              <i class="fa fa-sliders"></i> {{ text_view_config }}
+            </h4>
+          </div>
+          <div class="modal-body" style="padding: 25px;">
+            <div style="background: #eef5ff; padding: 18px; border-radius: 8px; margin-bottom: 18px;">
+              <h5 style="margin-bottom: 10px; color: #1f5fa8;">{{ entry_appid }}</h5>
+              <input type="text" id="view-input-appid" readonly="readonly" style="width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 4px; background: #fafafa;"/>
+              <div style="height: 10px;"></div>
+              <h5 style="margin-bottom: 10px; color: #1f5fa8;">{{ entry_private_key }}</h5>
+              <textarea id="view-input-private-key" rows="6" readonly="readonly" style="width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 4px; font-family: monospace; font-size: 12px; background: #fafafa; resize: vertical;"></textarea>
+              <div style="height: 10px;"></div>
+              <h5 style="margin-bottom: 10px; color: #1f5fa8;">{{ entry_webhook_public_key }}</h5>
+              <textarea id="view-input-webhook-public-key" rows="4" readonly="readonly" style="width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 4px; font-family: monospace; font-size: 12px; background: #fafafa; resize: vertical;"></textarea>
+            </div>
+
+            <div style="background: #eef5ff; padding: 18px; border-radius: 8px; margin-bottom: 18px;">
+              <h5 style="margin-bottom: 10px; color: #1f5fa8;">{{ entry_environment }}</h5>
+              <p style="margin-bottom: 8px; color: #666; font-size: 13px;">{{ help_environment }}</p>
+              <select id="view-input-environment" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="stg">{{ text_sandbox }}</option>
+                <option value="prod">{{ text_live }}</option>
+              </select>
+            </div>
+
+            <div style="background: #eef5ff; padding: 18px; border-radius: 8px; margin-bottom: 18px;">
+              <h5 style="margin-bottom: 10px; color: #1f5fa8;">{{ entry_language }}</h5>
+              <select id="view-input-language" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="zh-cn">{{ text_zh_cn }}</option>
+                <option value="zh-hk">{{ text_zh_hk }}</option>
+                <option value="en-gb">{{ text_en_gb }}</option>
+              </select>
+            </div>
+
+
+            <div style="background: #eef5ff; padding: 18px; border-radius: 8px; margin-bottom: 18px;">
+              <h5 style="margin-bottom: 10px; color: #1f5fa8;">{{ entry_geo_zone }}</h5>
+              <p style="margin-bottom: 8px; color: #666; font-size: 13px;">{{ help_geo_zone }}</p>
+              <select id="view-input-geo-zone" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="0">{{ text_all_zones }}</option>
+                {% for geo_zone in geo_zones %}
+                <option value="{{ geo_zone.geo_zone_id }}">{{ geo_zone.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div style="background: #eef5ff; padding: 18px; border-radius: 8px; margin-bottom: 18px;">
+              <h5 style="margin-bottom: 10px; color: #1f5fa8;">{{ entry_status }}</h5>
+              <p style="margin-bottom: 8px; color: #666; font-size: 13px;">{{ help_status }}</p>
+              <select id="view-input-status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+              </select>
+            </div>
+
+
+            <div style="background: #eef5ff; padding: 18px; border-radius: 8px;">
+              <h5 style="margin-bottom: 10px; color: #1f5fa8;">{{ entry_debug }}</h5>
+              <p style="margin-bottom: 8px; color: #666; font-size: 13px;">{{ help_debug }}</p>
+              <select id="view-input-debug" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer" style="border-top: none; padding: 20px; text-align: center;">
+            <button type="button" class="btn btn-default" data-dismiss="modal" style="margin-right: 10px;">
+              {{ button_cancel }}
+            </button>
+            <button type="button" id="btn-apply-config" class="btn btn-primary" style="background: #4f9ef5; border-color: #4f9ef5; color: #ffffff;">
+              {{ button_apply_config }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-default" style="display: none;">
       <div class="panel-heading">
         <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
       </div>
@@ -393,34 +443,6 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-order-status">{{ entry_order_status }}</label>
-            <div class="col-sm-10">
-              <select name="payment_wonderpayment_order_status_id" id="input-order-status" class="form-control">
-                {% for order_status in order_statuses %}
-                  {% if order_status.order_status_id == payment_wonderpayment_order_status_id %}
-                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-                  {% else %}
-                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-                  {% endif %}
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-refund-order-status">{{ entry_refund_order_status }}</label>
-            <div class="col-sm-10">
-              <select name="payment_wonderpayment_refund_order_status_id" id="input-refund-order-status" class="form-control">
-                {% for order_status in order_statuses %}
-                  {% if order_status.order_status_id == payment_wonderpayment_refund_order_status_id %}
-                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-                  {% else %}
-                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-                  {% endif %}
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
             <label class="col-sm-2 control-label" for="input-geo-zone">{{ entry_geo_zone }}</label>
             <div class="col-sm-10">
               <select name="payment_wonderpayment_geo_zone_id" id="input-geo-zone" class="form-control">
@@ -450,12 +472,6 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-sort-order">{{ entry_sort_order }}</label>
-            <div class="col-sm-10">
-              <input type="text" name="payment_wonderpayment_sort_order" value="{{ payment_wonderpayment_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control"/>
-            </div>
-          </div>
-          <div class="form-group">
             <label class="col-sm-2 control-label" for="input-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
             <div class="col-sm-10">
               <select name="payment_wonderpayment_debug" id="input-debug" class="form-control">
@@ -482,11 +498,12 @@ $(document).ready(function() {
     var qrCodeUuid = null;
     var qrCodeAccessToken = null;
     var pollInterval = null;
-    var currentEnvironment = 'stg';
+    var currentEnvironment = $('select[name="payment_wonderpayment_environment"]').val() || 'stg';
     var selectedBusinessId = null;
     var currentStep = 1;
     var generatedAppId = '';
     var generatedPrivateKey = '';
+    var generatedWebhookPublicKey = '';
 
     // 监听环境选择变化
     $('#input-environment').on('change', function() {
@@ -542,6 +559,7 @@ $(document).ready(function() {
         currentStep = 1;
         generatedAppId = '';
         generatedPrivateKey = '';
+        generatedWebhookPublicKey = '';
         
         if (pollInterval) {
             clearInterval(pollInterval);
@@ -554,18 +572,19 @@ $(document).ready(function() {
         $('.step-content').hide();
         $('#step-1').show();
         $('.step[data-step="1"]').addClass('active');
-        $('.step[data-step="1"]').find('.step-circle').css('background', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)').css('color', 'white');
+        $('.step[data-step="1"]').find('.step-circle').css('background', '#4f9ef5').css('color', 'white');
 
         // 重置二维码显示
         $('#qrcode-loading').show();
         $('#qrcode-display').hide();
-        $('#qrcode-image').attr('src', '');
+        $('#qrcode-images').attr('src', '');
         $('#qrcode-hint').text('');
         $('#qrcode-status')
             .removeClass('alert-success alert-danger alert-warning')
             .addClass('alert-info')
             .html('<i class="fa fa-clock-o"></i> {{ text_waiting_scan }}');
         $('#btn-refresh-qrcode').prop('disabled', true);
+        $('#result-webhook-public-key').val('');
 
         // 重置商家选择
         selectedBusinessId = null;
@@ -597,7 +616,7 @@ $(document).ready(function() {
 
                     // 生成二维码图片
                     var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(json.sUrl);
-                    $('#qrcode-image').attr('src', qrUrl);
+                    $('#qrcode-images').attr('src', qrUrl);
 
                     $('#qrcode-loading').hide();
                     $('#qrcode-display').show();
@@ -715,7 +734,7 @@ $(document).ready(function() {
                 circle.css('background', '#4CAF50').css('color', 'white');
             } else if (stepNum === stepNumber) {
                 // 当前步骤
-                circle.css('background', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)').css('color', 'white');
+                circle.css('background', '#4f9ef5').css('color', 'white');
             } else {
                 // 未完成的步骤
                 circle.css('background', '#e0e0e0').css('color', '#999');
@@ -813,7 +832,7 @@ $(document).ready(function() {
                         });
 
                         businessCard.on('mouseenter', function() {
-                            $(this).css('border-color', '#667eea').css('box-shadow', '0 2px 8px rgba(102, 126, 234, 0.2)');
+                            $(this).css('border-color', '#4f9ef5').css('box-shadow', '0 2px 8px rgba(79, 158, 245, 0.2)');
                         });
 
                         businessCard.on('mouseleave', function() {
@@ -844,7 +863,7 @@ $(document).ready(function() {
         // 找到对应的卡片并高亮（使用 data 属性）
         $('.business-card').each(function() {
             if ($(this).data('business-id') === business.id) {
-                $(this).css('border-color', '#667eea').css('background', '#f0f4ff');
+                $(this).css('border-color', '#4f9ef5').css('background', '#eef5ff');
             }
         });
 
@@ -876,6 +895,11 @@ $(document).ready(function() {
                     // 保存appid和私钥到全局变量,不显示给用户
                     generatedAppId = json.config.appid || '';
                     generatedPrivateKey = json.config.private_key || '';
+                    generatedWebhookPublicKey = json.config.webhook_public_key || '';
+                    if (generatedWebhookPublicKey) {
+                        $('#result-webhook-public-key').val(generatedWebhookPublicKey);
+                        $('#entry-public-key').val(generatedWebhookPublicKey);
+                    }
 
                     // 更新步骤可点击状态
                     updateStepClickability();
@@ -921,32 +945,24 @@ $(document).ready(function() {
 
         // 获取webhook公钥的值
         var webhookPublicKey = $('#result-webhook-public-key').val();
+        if ((!webhookPublicKey || webhookPublicKey.trim() === '') && generatedWebhookPublicKey) {
+            webhookPublicKey = generatedWebhookPublicKey;
+        }
         if (webhookPublicKey) {
-            $('textarea[name="payment_wonderpayment_public_key"]').val(webhookPublicKey);
+            $('#entry-public-key').val(webhookPublicKey);
         }
 
         // 获取环境
         var environment = $('#modal-input-environment').val();
         if (environment) {
             $('select[name="payment_wonderpayment_environment"]').val(environment);
+            currentEnvironment = environment;
         }
 
         // 获取语言
         var language = $('#modal-input-language').val();
         if (language) {
             $('select[name="payment_wonderpayment_language"]').val(language);
-        }
-
-        // 获取订单状态
-        var orderStatus = $('#modal-input-order-status').val();
-        if (orderStatus) {
-            $('select[name="payment_wonderpayment_order_status_id"]').val(orderStatus);
-        }
-
-        // 获取退款订单状态
-        var refundOrderStatus = $('#modal-input-refund-order-status').val();
-        if (refundOrderStatus) {
-            $('select[name="payment_wonderpayment_refund_order_status_id"]').val(refundOrderStatus);
         }
 
         // 获取地理区域
@@ -961,12 +977,6 @@ $(document).ready(function() {
             $('select[name="payment_wonderpayment_status"]').val(status);
         }
 
-        // 获取排序
-        var sortOrder = $('#modal-input-sort-order').val();
-        if (sortOrder) {
-            $('input[name="payment_wonderpayment_sort_order"]').val(sortOrder);
-        }
-
         // 获取调试模式
         var debug = $('#modal-input-debug').val();
         if (debug) {
@@ -979,6 +989,80 @@ $(document).ready(function() {
         // 显示成功消息
         alert('{{ text_config_saved }}');
     });
+
+    // 打开当前配置弹窗
+    $('#btn-open-config-modal').on('click', function() {
+        syncConfigModalFromForm();
+        $('#config-modal').modal('show');
+    });
+
+    // 应用当前配置弹窗的设置
+    $('#btn-apply-config').on('click', function() {
+        var environment = $('#view-input-environment').val();
+        var language = $('#view-input-language').val();
+        var geoZone = $('#view-input-geo-zone').val();
+        var status = $('#view-input-status').val();
+        var debug = $('#view-input-debug').val();
+
+        if (environment) {
+            $('select[name="payment_wonderpayment_environment"]').val(environment);
+        }
+        if (language) {
+            $('select[name="payment_wonderpayment_language"]').val(language);
+        }
+        if (geoZone !== null && geoZone !== undefined) {
+            $('select[name="payment_wonderpayment_geo_zone_id"]').val(geoZone);
+        }
+        if (status !== null && status !== undefined) {
+            $('select[name="payment_wonderpayment_status"]').val(status);
+        }
+        if (debug !== null && debug !== undefined) {
+            $('select[name="payment_wonderpayment_debug"]').val(debug);
+        }
+
+        $('#config-modal').modal('hide');
+        alert('{{ text_config_saved }}');
+    });
+
+    function syncConfigModalFromForm() {
+        var appid = $('input[name="payment_wonderpayment_appid"]').val();
+        var privateKey = $('textarea[name="payment_wonderpayment_private_key"]').val();
+        var webhookPublicKey = $('#entry-public-key').val();
+        if ((!webhookPublicKey || webhookPublicKey.trim() === '') && generatedWebhookPublicKey) {
+            webhookPublicKey = generatedWebhookPublicKey;
+            $('#entry-public-key').val(generatedWebhookPublicKey);
+        }
+        var environment = $('select[name="payment_wonderpayment_environment"]').val();
+        var language = $('select[name="payment_wonderpayment_language"]').val();
+        var geoZone = $('select[name="payment_wonderpayment_geo_zone_id"]').val();
+        var status = $('select[name="payment_wonderpayment_status"]').val();
+        var debug = $('select[name="payment_wonderpayment_debug"]').val();
+
+        if (appid !== null && appid !== undefined) {
+            $('#view-input-appid').val(appid);
+        }
+        if (privateKey !== null && privateKey !== undefined) {
+            $('#view-input-private-key').val(privateKey);
+        }
+        if (webhookPublicKey !== null && webhookPublicKey !== undefined) {
+            $('#view-input-webhook-public-key').val(webhookPublicKey);
+        }
+        if (environment) {
+            $('#view-input-environment').val(environment);
+        }
+        if (language) {
+            $('#view-input-language').val(language);
+        }
+        if (geoZone !== null && geoZone !== undefined) {
+            $('#view-input-geo-zone').val(geoZone);
+        }
+        if (status !== null && status !== undefined) {
+            $('#view-input-status').val(status);
+        }
+        if (debug !== null && debug !== undefined) {
+            $('#view-input-debug').val(debug);
+        }
+    }
 
     // 生成 RSA 密钥对（使用 forge 库）
     // 跳转到指定步骤
