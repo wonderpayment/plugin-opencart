@@ -577,7 +577,7 @@ $(document).ready(function() {
         // 重置二维码显示
         $('#qrcode-loading').show();
         $('#qrcode-display').hide();
-        $('#qrcode-images').attr('src', '');
+        $('#qrcode-image').attr('src', '');
         $('#qrcode-hint').text('');
         $('#qrcode-status')
             .removeClass('alert-success alert-danger alert-warning')
@@ -614,9 +614,8 @@ $(document).ready(function() {
                 if (json.success) {
                     qrCodeUuid = json.uuid;
 
-                    // 生成二维码图片
-                    var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(json.sUrl);
-                    $('#qrcode-images').attr('src', qrUrl);
+                    // 生成二维码图片（包含服务降级）
+                    renderQRCodeImage(json.sUrl);
 
                     $('#qrcode-loading').hide();
                     $('#qrcode-display').show();
@@ -642,6 +641,33 @@ $(document).ready(function() {
                     .html('<i class="fa fa-times"></i> ' + thrownError);
             }
         });
+    }
+
+    // 渲染二维码图片，首选 qrserver，失败后降级到 Google Chart
+    function renderQRCodeImage(targetUrl) {
+        var providers = [
+            'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=',
+            'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl='
+        ];
+        var index = 0;
+        var encoded = encodeURIComponent(targetUrl || '');
+        var $img = $('#qrcode-image');
+
+        function tryLoad() {
+            if (index >= providers.length) {
+                $('#qrcode-hint').html('二维码图片加载失败，请直接打开链接：<a href="' + targetUrl + '" target="_blank" rel="noopener noreferrer">' + targetUrl + '</a>');
+                return;
+            }
+
+            var src = providers[index] + encoded;
+            $img.off('error.qrload').one('error.qrload', function() {
+                index += 1;
+                tryLoad();
+            });
+            $img.attr('src', src);
+        }
+
+        tryLoad();
     }
 
     // 轮询二维码状态

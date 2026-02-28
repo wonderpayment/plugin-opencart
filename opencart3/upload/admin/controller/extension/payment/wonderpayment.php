@@ -892,11 +892,19 @@ class ControllerExtensionPaymentWonderpayment extends Controller {
             if (isset($response['data'])) {
                 $data = $response['data'];
 
+                // Wonder API returns webhook_public_key in base64; decode to PEM when possible.
+                $webhookPublicKey = '';
+                if (isset($data['webhook_public_key']) && $data['webhook_public_key'] !== '') {
+                    $decodedKey = base64_decode($data['webhook_public_key'], true);
+                    $webhookPublicKey = ($decodedKey !== false) ? trim($decodedKey) : $data['webhook_public_key'];
+                }
+
                 // 提取配置信息
                 $config = array(
                     'appid' => isset($data['app_id']) ? $data['app_id'] : '',
                     'private_key' => $keyPair['private_key'], // 使用本地生成的私钥
-                    'public_key' => $keyPair['public_key']    // 使用本地生成的公钥
+                    'signature_public_key' => $keyPair['public_key'], // 本地签名公钥（非 webhook 公钥）
+                    'webhook_public_key' => $webhookPublicKey // Wonder 回调验签公钥
                 );
 
                 $json['success'] = true;
