@@ -29,7 +29,13 @@ jobs:
           rm -rf dist
           mkdir -p dist
           cp -R opencart3/upload dist/upload
-          if [ -f opencart3/install.xml ]; then
+          # OpenCart installer blocks writing composer artifacts/vendor/system storage from extension zip.
+          rm -f dist/upload/composer.json dist/upload/composer.lock dist/upload/composer2.phar
+          rm -rf dist/upload/vendor dist/upload/system/storage
+          rm -rf dist/upload/system/ocmod
+          if [ -f opencart3/upload/system/ocmod/wonderpayment_return_refund_ui.ocmod.xml ]; then
+            cp opencart3/upload/system/ocmod/wonderpayment_return_refund_ui.ocmod.xml dist/install.xml
+          elif [ -f opencart3/install.xml ]; then
             cp opencart3/install.xml dist/install.xml
           fi
 

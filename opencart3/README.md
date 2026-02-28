@@ -2,8 +2,8 @@ WonderPayment for OpenCart 3 (Standalone Package)
 
 What this package includes
 - WonderPayment extension files under `upload/`
-- WonderPayment SDK under `upload/system/storage/vendor/wonderpayment/`
-- `install.xml` for OpenCart Extension Installer metadata
+- WonderPayment SDK under `upload/system/library/wonderpayment/`
+- `install.xml` as OCMOD payload (auto-imported by OpenCart Extension Installer)
 
 Install (manual)
 1) Copy the `upload/` folder into your OpenCart root.
@@ -13,7 +13,7 @@ Install (manual)
 Notes
 - This package does not include any exchange-rate conversion logic; it uses OpenCart's own currency system.
 - Install step will ensure HKD currency exists (it will not change the default currency).
-- SDK is not auto-updated. If you want to update the SDK after installation, run `composer update` in `upload/`.
+- The release package excludes `composer.json`, `composer.lock`, `composer2.phar`, `upload/vendor/`, `upload/system/storage/`, and `upload/system/ocmod/` because OpenCart installer blocks those paths.
 
 OCMOD (Return Refund UI)
 - This package ships an OCMOD file at `upload/system/ocmod/wonderpayment_return_refund_ui.ocmod.xml`.

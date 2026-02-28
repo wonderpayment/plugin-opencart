@@ -18,6 +18,7 @@ if (!defined('WONDERPAYMENT_SDK_LOADED')) {
     if (!class_exists('PaymentSDK') && !class_exists('WonderPayment\\PaymentSDK')) {
         // 尝试多个可能的路径
         $possiblePaths = [
+            DIR_SYSTEM . 'library/wonderpayment/PaymentSDK.php',
             DIR_SYSTEM . 'storage/vendor/wonderpayment/src/PaymentSDK.php',
             DIR_SYSTEM . '../storage/vendor/wonderpayment/src/PaymentSDK.php',
         ];
